@@ -1,6 +1,6 @@
 # SenaX - Rede Social Escolar (baseada no X)
 
-O ** SenaX ** é uma rede social interna desenvolvida para que alunos possam compartilhar ideias, divulgar trabalhos e interagir de forma responsável. O projeto simula uma aplicação real de mercado, focando em conexões rápidas e seguras entre a comunidade acadêmica.
+O **SenaX** é uma rede social interna desenvolvida para que alunos possam compartilhar ideias, divulgar trabalhos e interagir de forma responsável. O projeto simula uma aplicação real de mercado, focando em conexões rápidas e seguras entre a comunidade acadêmica.
 
 ---
 
