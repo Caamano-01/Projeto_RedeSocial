@@ -35,4 +35,4 @@ O Senax foi criado como um ambiente digital controlado onde apenas estudantes ca
 ---
 
 ### Link do protótipo
-git
+#### https://www.canva.com/design/DAHC09K0sRQ/OYVol2nps79a50FNBhblDw/edit?utm_content=DAHC09K0sRQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
