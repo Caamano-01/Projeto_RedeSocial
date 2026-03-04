@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenaX</title>
+    <link rel="stylesheet" href="/assets/css/style-index.css">
+</head>
+<body>
+    <div class="container">
+        <div class="container-esquerda">
+            <img src="/assets/img/logo-escura.png" alt="Logo SenaX" class="logo-principal">
+        </div>
+        <div class="container-direita">
+            <h1>Inscreva-se hoje</h1>
+            <button class="btn-cadastro" onclick="abrirModal('modal-cadastro')">Cadastre-se</button>
+            
+            <div class="login-section">
+                <h2>Já tem uma conta?</h2>
+                <button class="btn-entre" onclick="abrirModal('modal-login')">Entre</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CADASTRO -->
+    <div id="modal-cadastro" class="modal-container">
+        <div class="modal-content">
+            <span class="close-btn" onclick="fecharModal('modal-cadastro')">X</span>
+            <img src="/assets/img/S-logo-escura.png" alt="SenaX" class="logo-modal">
+            <h2>Crie sua conta</h2>
+            <input type="text" id="cad-nome" placeholder="Nome">
+            <input type="email" id="cad-email" placeholder="Email SENAI">
+            <input type="text" id="cad-turma" placeholder="Turma">
+            <input type="password" id="cad-senha" placeholder="Senha">
+            <input type="password" id="cad-confirmar" placeholder="Confirmar senha">
+            <button onclick="registrarUsuario()" class="btn-modal">Criar Conta</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE LOGIN -->
+    <div id="modal-login" class="modal-container">
+        <div class="modal-content">
+            <span class="close-btn" onclick="fecharModal('modal-login')">X</span>
+            <img src="/assets/img/S-logo-escura.png" alt="SenaX" class="logo-modal">
+            <h2>Entre</h2>
+            <input type="email" id="log-email" placeholder="Email">
+            <input type="password" id="log-senha" placeholder="Senha">
+            <button onclick="fazerLogin()" class="btn-modal">Entrar</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAp1HY4aunjz6pFXBaY-8i7wZH6eGG2EJA",
+            authDomain: "rede-senax.firebaseapp.com",
+            databaseURL: "https://rede-senax-default-rtdb.firebaseio.com",
+            projectId: "rede-senax",
+            storageBucket: "rede-senax.firebasestorage.app",
+            messagingSenderId: "646928987518",
+            appId: "1:646928987518:web:4f320cf5494d0343d26f2f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // ABRIR E FECHAR MODAIS
+        window.abrirModal = function(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        window.fecharModal = function(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // CADASTRO
+        window.registrarUsuario = function() {
+            const nome = document.getElementById('cad-nome').value;
+            const email = document.getElementById('cad-email').value;
+            const senha = document.getElementById('cad-senha').value;
+            const confirmarSenha = document.getElementById('cad-confirmar').value;
+
+            // Validação de senha
+            if (senha !== confirmarSenha) {
+                alert("As senhas não coincidem!");
+                return;
+            }
+
+            createUserWithEmailAndPassword(auth, email, senha)
+            .then((userCredential) => {
+                const user = userCredential.user;
+
+                return set(ref(db, 'usuarios/' + user.uid), {
+                    nome: nome,
+                    email: email,
+                    turma: document.getElementById('cad-turma').value,
+                    dataCadastro: new Date().toISOString()
+                });
+            })
+            .then(() => {
+                alert("Conta criada com sucesso!");
+                fecharModal('modal-cadastro');
+            })
+            .catch((error) => {
+                // TRATAMENTO DE ERRO PARA EMAIL DUPLICADO
+                if (error.code === 'auth/email-already-in-use') {
+                    alert("Este e-mail já está em uso. Tente fazer login.");
+                } else if (error.code === 'auth/invalid-email') {
+                    alert("O formato do e-mail é inválido.");
+                } else if (error.code === 'auth/weak-password') {
+                    alert("A senha deve ter pelo menos 6 caracteres.");
+                } else {
+                    alert("Erro ao cadastrar: " + error.message);
+                }
+            });
+        };
+
+        // LOGIN
+        window.fazerLogin = function() {
+            const email = document.getElementById('log-email').value;
+            const senha = document.getElementById('log-senha').value;
+
+            signInWithEmailAndPassword(auth, email, senha)
+            .then(() => {
+                alert("Login realizado!");
+                fecharModal('modal-login');
+            })
+            .catch((error) => {
+                alert("Erro: " + error.message);
+            });
+        };
+        </script>
+</body>
+</html>
