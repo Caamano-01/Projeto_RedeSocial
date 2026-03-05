@@ -28,12 +28,20 @@
             <span class="close-btn" onclick="fecharModal('modal-cadastro')">X</span>
             <img src="/assets/img/S-logo-escura.png" alt="SenaX" class="logo-modal">
             <h2>Crie sua conta</h2>
+            <div class="upload-container">
+                <label for="cad-foto" class="foto-label">
+                    <img src="" id="preview-foto" class="foto-circulo">
+                    <span>Adicionar Foto</span>
+                </label>
+                <input type="file" id="cad-foto" accept="image/*" style="display: none;">
+            </div>
             <input type="text" id="cad-nome" placeholder="Nome">
-            <input type="email" id="cad-email" placeholder="Email SENAI">
+            <textarea id="cad-descricao" placeholder="Sua descrição (bio)..." rows="3"></textarea>
             <input type="text" id="cad-turma" placeholder="Turma">
+            <input type="email" id="cad-email" placeholder="Email SENAI">
             <input type="password" id="cad-senha" placeholder="Senha">
             <input type="password" id="cad-confirmar" placeholder="Confirmar senha">
-            <button onclick="registrarUsuario()" class="btn-modal">Criar Conta</button>
+            <button onclick="registrarUsuario()" id="btn-registrar" class="btn-modal">Criar Conta</button>
         </div>
     </div>
 
@@ -45,7 +53,7 @@
             <h2>Entre</h2>
             <input type="email" id="log-email" placeholder="Email">
             <input type="password" id="log-senha" placeholder="Senha">
-            <button onclick="fazerLogin()" class="btn-modal">Entrar</button>
+            <button onclick="fazerLogin()" id="btn-login" class="btn-modal">Entrar</button>
         </div>
     </div>
 
@@ -55,85 +63,123 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
         from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+        // Configurações do Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyAp1HY4aunjz6pFXBaY-8i7wZH6eGG2EJA",
-            authDomain: "rede-senax.firebaseapp.com",
-            databaseURL: "https://rede-senax-default-rtdb.firebaseio.com",
-            projectId: "rede-senax",
-            storageBucket: "rede-senax.firebasestorage.app",
-            messagingSenderId: "646928987518",
-            appId: "1:646928987518:web:4f320cf5494d0343d26f2f"
+            apiKey: "AIzaSyB19gxl7E3NeqKKZ9pNe634wtbkghXNSVM",
+            authDomain: "senax-rede.firebaseapp.com",
+            databaseURL: "https://senax-rede-default-rtdb.firebaseio.com/",
+            projectId: "senax-rede",
+            storageBucket: "senax-rede.firebasestorage.app",
+            messagingSenderId: "714869150902",
+            appId: "1:714869150902:web:2ee1f1d634624113a4c217"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // ABRIR E FECHAR MODAIS
-        window.abrirModal = function(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
+        // Configurações Cloudinary
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dywza3kuv/image/upload";
+        const CLOUDINARY_UPLOAD_PRESET = "rede_senax";
 
-        window.fecharModal = function(id) {
-            document.getElementById(id).style.display = 'none';
-        }
+        // FUNÇÕES DE UI
+        window.abrirModal = (id) => document.getElementById(id).style.display = 'flex';
+        window.fecharModal = (id) => document.getElementById(id).style.display = 'none';
 
-        // CADASTRO
-        window.registrarUsuario = function() {
-            const nome = document.getElementById('cad-nome').value;
-            const email = document.getElementById('cad-email').value;
+        // Preview da foto selecionada
+        document.getElementById('cad-foto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => document.getElementById('preview-foto').src = event.target.result;
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // REGISTRO DE USUÁRIO (Cloudinary + Firebase)
+        window.registrarUsuario = async function() {
+            const btn = document.getElementById('btn-registrar');
+            const originalText = btn.innerText;
+
+            // Coleta de dados
+            const nome = document.getElementById('cad-nome').value.trim();
+            const email = document.getElementById('cad-email').value.trim();
             const senha = document.getElementById('cad-senha').value;
             const confirmarSenha = document.getElementById('cad-confirmar').value;
+            const descricao = document.getElementById('cad-descricao').value;
+            const turma = document.getElementById('cad-turma').value;
+            const fotoFile = document.getElementById('cad-foto').files[0];
 
-            // Validação de senha
+            // Validações básicas
+            if (!nome || !email || !senha || !fotoFile) {
+                alert("Preencha todos os campos e selecione uma foto!");
+                return;
+            }
             if (senha !== confirmarSenha) {
                 alert("As senhas não coincidem!");
                 return;
             }
 
-            createUserWithEmailAndPassword(auth, email, senha)
-            .then((userCredential) => {
+            // Início do processo (Feedback UX)
+            btn.disabled = true;
+            btn.innerText = "Processando...";
+
+            try {
+                // upload para o Cloudinary
+                btn.innerText = "Subindo imagem...";
+                const formData = new FormData();
+                formData.append('file', fotoFile);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+                const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+                if (!cloudRes.ok) throw new Error("Erro ao subir imagem para o Cloudinary");
+                const cloudData = await cloudRes.json();
+                const fotoUrl = cloudData.secure_url;
+
+                // criar conta no Firebase Auth
+                btn.innerText = "Criando conta...";
+                const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
                 const user = userCredential.user;
 
-                return set(ref(db, 'usuarios/' + user.uid), {
-                    nome: nome,
-                    email: email,
-                    turma: document.getElementById('cad-turma').value,
+                // salvar dados no Database
+                await set(ref(db, 'usuarios/' + user.uid), {
+                    nome,
+                    email,
+                    turma,
+                    descricao,
+                    fotoPerfil: fotoUrl,
                     dataCadastro: new Date().toISOString()
                 });
-            })
-            .then(() => {
+
                 alert("Conta criada com sucesso!");
-                fecharModal('modal-cadastro');
-            })
-            .catch((error) => {
-                // TRATAMENTO DE ERRO PARA EMAIL DUPLICADO
-                if (error.code === 'auth/email-already-in-use') {
-                    alert("Este e-mail já está em uso. Tente fazer login.");
-                } else if (error.code === 'auth/invalid-email') {
-                    alert("O formato do e-mail é inválido.");
-                } else if (error.code === 'auth/weak-password') {
-                    alert("A senha deve ter pelo menos 6 caracteres.");
-                } else {
-                    alert("Erro ao cadastrar: " + error.message);
-                }
-            });
+                window.location.href = "page-inicial.html";
+
+            } catch (error) {
+                alert("Erro: " + error.message);
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
         };
 
         // LOGIN
         window.fazerLogin = function() {
+            const btn = document.getElementById('btn-login');
             const email = document.getElementById('log-email').value;
             const senha = document.getElementById('log-senha').value;
 
+            btn.disabled = true;
+            btn.innerText = "Entrando...";
+
             signInWithEmailAndPassword(auth, email, senha)
             .then(() => {
-                alert("Login realizado!");
-                fecharModal('modal-login');
+                window.location.href = "page-inicial.html";
             })
             .catch((error) => {
                 alert("Erro: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "Entrar";
             });
         };
-        </script>
+    </script>
 </body>
 </html>
