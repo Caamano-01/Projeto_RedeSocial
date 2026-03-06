@@ -8,7 +8,7 @@
 .sidebar {
     width: 260px;
     height: 100vh;
-    background-color: #FFDAB9;
+    background: linear-gradient(90deg, #ff3131, #ff914d);
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -21,7 +21,7 @@
 }
 
 .sidebar-logo {
-    width: 120px;
+    width: 180px;
     margin: 0 auto 20px auto;
     display: block;
 }
@@ -34,7 +34,7 @@
 
 .search-container input {
     width: 100%;
-    padding: 10px 15px 10px 40px;
+    padding: 12px 15px 12px 45px;
     border-radius: 20px;
     border: 1px solid #666;
 }
@@ -49,6 +49,7 @@
 
 /* NAV LINKS */
 .nav-links {
+    font-family: "Old Standard TT", serif;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -68,13 +69,13 @@
 }
 
 .nav-links a:hover {
-    background-color: #ff7804;
+    background-color: #ffc490;
     color: #fff;
 }
 
 /* BOTÃO POSTAR */
 .btn-postar {
-    background-color: #ff7804;
+    background-color: #ffffff;
     border: none;
     padding: 15px;
     border-radius: 30px;
@@ -92,7 +93,7 @@
 }
 
 .btn-postar:hover {
-    background-color: #ff5100;
+    background-color: #ffd6c3;
     transform: scale(1.05);
 }
 

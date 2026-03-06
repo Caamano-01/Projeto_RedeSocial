@@ -9,14 +9,14 @@
 <body>
     <div class="container">
         <div class="container-esquerda">
-            <img src="/assets/img/logo-escura.png" alt="Logo SenaX" class="logo-principal">
+            <img src="/assets/img/logo-clara.png" alt="Logo SenaX" class="logo-principal">
         </div>
         <div class="container-direita">
             <h1>Inscreva-se hoje</h1>
             <button class="btn-cadastro" onclick="abrirModal('modal-cadastro')">Cadastre-se</button>
             
             <div class="login-section">
-                <h2>Já tem uma conta?</h2>
+                <h2 class="titulo">Já tem uma conta?</h2>
                 <button class="btn-entre" onclick="abrirModal('modal-login')">Entre</button>
             </div>
         </div>
@@ -26,8 +26,8 @@
     <div id="modal-cadastro" class="modal-container">
         <div class="modal-content">
             <span class="close-btn" onclick="fecharModal('modal-cadastro')">X</span>
-            <img src="/assets/img/S-logo-escura.png" alt="SenaX" class="logo-modal">
-            <h2>Crie sua conta</h2>
+            <img src="/assets/img/logo-clara.png" alt="SenaX" class="logo-modal">
+            <h2 class="titulo-modal">Crie sua conta</h2>
             <div class="upload-container">
                 <label for="cad-foto" class="foto-label">
                     <img src="" id="preview-foto" class="foto-circulo">
@@ -49,8 +49,8 @@
     <div id="modal-login" class="modal-container">
         <div class="modal-content">
             <span class="close-btn" onclick="fecharModal('modal-login')">X</span>
-            <img src="/assets/img/S-logo-escura.png" alt="SenaX" class="logo-modal">
-            <h2>Entre</h2>
+            <img src="/assets/img/logo-clara.png" alt="SenaX" class="logo-modal">
+            <h2 class="titulo-modal">Entre</h2>
             <input type="email" id="log-email" placeholder="Email">
             <input type="password" id="log-senha" placeholder="Senha">
             <button onclick="fazerLogin()" id="btn-login" class="btn-modal">Entrar</button>
