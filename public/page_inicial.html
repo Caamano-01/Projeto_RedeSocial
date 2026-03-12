@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SenaX</title>
 
-    <link rel="icon" href="/assets/img/S-logo-escura.png">
+    <link rel="icon" href="../assets/img/logo-escura.png">
 
     <!-- Font Awesome Oficial -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <link rel="stylesheet" href="/assets/css/style-pgInicial.css">
+    <link rel="stylesheet" href="../assets/css/style-pgInicial.css">
 </head>
 <body>
 
+    <!-- (SIDEBAR)BARRA DE NAVEGAÇÃO -->
     <aside class="sidebar">
 
         <div class="sidebar-top">
-            <img src="/assets/img/logo-clara.png" alt="SenaX" class="sidebar-logo">
+            <img src="../assets/img/logo-clara.png" alt="SenaX" class="sidebar-logo">
 
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -25,7 +26,7 @@
             </div>
 
             <nav class="nav-links">
-                <a href="page_inicial.html">
+                <a href="./page_inicial.html">
                     <i class="fa-solid fa-house"></i>
                     <span>Página inicial</span>
                 </a>
@@ -37,7 +38,7 @@
                     <i class="fa-solid fa-user"></i>
                     <span>Perfil</span>
                 </a>
-                <a href="#" class="btn-sair">
+                <a href="./index.html" class="btn-sair">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Sair</span>
                 </a>
@@ -56,58 +57,34 @@
 
     </aside>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    <!-- MAIN(FEED) -->
+    <main class="feed-container">
+        <header class="feed-header">
+            <div class="tab active" id="tab-para-voce">Para você</div>
+            <div class="tab" id="tab-seguindo">Seguindo</div>
+        </header>
 
-        // Configurações do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyB19gxl7E3NeqKKZ9pNe634wtbkghXNSVM",
-            authDomain: "senax-rede.firebaseapp.com",
-            databaseURL: "https://senax-rede-default-rtdb.firebaseio.com/",
-            projectId: "senax-rede",
-            storageBucket: "senax-rede.firebasestorage.app",
-            messagingSenderId: "714869150902",
-            appId: "1:714869150902:web:2ee1f1d634624113a4c217"
-        };
+        <section class="create-post">
+            <div class="post-input-wrapper">
+                <img id="postAvatar" class="user-avatar-mini">
+                <textarea id="postText" placeholder="O que está acontecendo?"></textarea>
+            </div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
+            <div class="post-actions">
+                <label for="file-input">
+                    <i class="fa-regular fa-image"></i>
+                </label>
+                <input type="file" id="file-input" hidden>
+                <button class="btn-post-submit">Postar</button>
+            </div>
+        </section>
 
-        // Monitora o estado da autenticação
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                const uid = user.uid;
-                const userRef = ref(db, "usuarios/" + uid);
+        <section id="posts-feed">
+            <!-- Posts serão carregados aqui -->
+        </section>
+    </main>
 
-                // Busca os dados do usuário no banco
-                get(userRef).then((snapshot) => {
-                    if (snapshot.exists()) {
-                        const dados = snapshot.val();
-                        document.getElementById("userName").innerText = dados.nome;
-                        document.getElementById("userAvatar").src = dados.fotoPerfil || "/assets/img/default-avatar.png";
-                    }
-                }).catch((error) => {
-                    console.error("Erro ao carregar dados:", error);
-                });
-            } else {
-                // Se não houver usuário logado, volta para o login
-                window.location.href = "index.html";
-            }
-        });
-
-        // Lógica de Logout
-        const btnSair = document.querySelector(".btn-sair");
-        btnSair.addEventListener("click", (e) => {
-            e.preventDefault();
-            signOut(auth).then(() => {
-                window.location.href = "index.html";
-            }).catch((error) => {
-                alert("Erro ao sair: " + error.message);
-            });
-        });
-    </script>
+    <!-- SCRIPT PRINCIPAL -->
+    <script type="module" src="../assets/js/main.js" defer></script>
 </body>
 </html>
