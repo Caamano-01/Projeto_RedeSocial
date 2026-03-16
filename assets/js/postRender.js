@@ -14,15 +14,20 @@ export async function renderizarPost(id, p, usuario) {
   const meuLike = likesData[usuario.uid];
 
   div.innerHTML = `
-    <img class="post-user-img" src="${p.avatar}">
-    <div>
-      <div class="post-info">
-        <strong>${escaparHTML(p.nome)}</strong>
-        <span>${tempo(p.timestamp)}</span>
-      </div>
-      <div class="post-text">${escaparHTML(p.texto)}</div>
-      ${p.imagem ? `<img class="post-img" src="${p.imagem}">` : ""}
-      <div class="post-interactions">
+    <div class="post-container-flex" onclick="location.href='perfil.html?uid=${p.uid}'" style="cursor:pointer;">
+      <img class="post-user-img" src="${p.avatar}">
+
+      <div class="post-body">
+        <div class="post-header-info">
+          <span class="post-author-name">${escaparHTML(p.nome)}</span>
+          <span class="post-metadata"> · ${tempo(p.timestamp)}</span>
+        </div>
+      
+        <div class="post-text">${escaparHTML(p.texto)}</div>
+
+        ${p.imagem ? `<img class="post-img" src="${p.imagem}">` : ""}
+        
+        <div class="post-interactions">
           <div class="interaction-item btn-like">
               <i class="${meuLike ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}" 
                 style="color: ${meuLike ? '#ff3131' : 'inherit'}"></i>
@@ -38,8 +43,9 @@ export async function renderizarPost(id, p, usuario) {
           <div class="interaction-item btn-deletar">
               <i class="fa-regular fa-trash-can"></i>
           </div>` : ""}
-      </div>
-      <div id="comentarios-${id}"></div>
+          </div>
+          <div id="comentarios-${id}"></div>
+        </div>
     </div>
   `;
 

@@ -1,0 +1,118 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: linear-gradient(90deg, #ff3131, #ff914d);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: fixed;
+    left: 0;
+    top: 0;
+    border-right: 1px solid #ccc;
+    transition: width 0.3s ease;
+}
+
+.sidebar-logo {
+    width: 180px;
+    margin: 0 auto 20px auto;
+    display: block;
+}
+
+/* SEARCH */
+.search-container {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border-radius: 20px;
+    border: 1px solid #666;
+}
+
+.search-container i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+/* NAV LINKS */
+.nav-links {
+    font-family: "Old Standard TT", serif;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #000;
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.nav-links a:hover {
+    background-color: #ffc490;
+    color: #fff;
+}
+
+/* BOTÃO POSTAR */
+.btn-postar {
+    background-color: #ffffff;
+    border: none;
+    padding: 15px;
+    border-radius: 30px;
+    color: #000;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 30px;
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.btn-postar:hover {
+    background-color: #ffd6c3;
+    transform: scale(1.05);
+}
+
+/* USER FOOTER */
+.user-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #353535;
+}
+
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    background: #999;
+    border-radius: 50%;
+}
+
+.user-name {
+    font-weight: bold;
+}

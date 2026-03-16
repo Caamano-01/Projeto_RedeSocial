@@ -9,14 +9,11 @@
 
     <!-- Font Awesome Oficial -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <link rel="stylesheet" href="../assets/css/style-pgInicial.css">
 </head>
 <body>
-
     <!-- (SIDEBAR)BARRA DE NAVEGAÇÃO -->
     <aside class="sidebar">
-
         <div class="sidebar-top">
             <img src="../assets/img/logo-clara.png" alt="SenaX" class="sidebar-logo">
 
@@ -54,37 +51,23 @@
             <img id="userAvatar" class="user-avatar">
             <span id="userName" class="user-name"></span>
         </div>
-
     </aside>
 
-    <!-- MAIN(FEED) -->
-    <main class="feed-container">
-        <header class="feed-header">
-            <div class="tab active" id="tab-para-voce">Para você</div>
-            <div class="tab" id="tab-seguindo">Seguindo</div>
-        </header>
+    <!-- MAIN(PERFIL) -->
+     <main class="feed-container">
+        <div class="perfil-header-container">
+            <img id="perfil-avatar" src="../assets/img/default-avatar.png" class="avatar-perfil">
+            <h2 id="perfil-nome">Carregando...</h2>
+            <p id="perfil-turma" class="info-turma"></p>
+            <p id="perfil-descricao"></p>
+            <button id="btn-seguir-acao" class="btn-seguir">Seguir</button>
+        </div>
 
-        <section class="create-post">
-            <div class="post-input-wrapper">
-                <img id="postAvatar" class="user-avatar-mini">
-                <textarea id="postText" placeholder="O que está acontecendo?"></textarea>
+        <div id="posts-usuario">
             </div>
+     </main>
 
-            <div class="post-actions">
-                <label for="file-input">
-                    <i class="fa-regular fa-image"></i>
-                </label>
-                <input type="file" id="file-input" hidden>
-                <button class="btn-post-submit">Postar</button>
-            </div>
-        </section>
-
-        <section id="posts-feed">
-            <!-- Posts serão carregados aqui -->
-        </section>
-    </main>
-
-    <!-- SCRIPT PRINCIPAL -->
-    <script type="module" src="../assets/js/main.js" defer></script>
+    <!-- SCRIPTS -->
+    <script type="module" src="../assets/js/perfil.js"></script>
 </body>
 </html>
