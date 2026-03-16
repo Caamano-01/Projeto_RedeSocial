@@ -306,7 +306,38 @@ textarea {
     padding-bottom: 5px;
 }
 
+/* Container das interações */
+.post-interactions {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+    color: #555;
+}
 
+.interaction-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+    user-select: none;
+}
+
+.interaction-item:hover {
+    color: #ff6a00;
+}
+
+.interaction-item:active {
+    transform: scale(1.3);
+}
+
+.fa-solid.fa-heart {
+    color: #ff3131;
+}
+
+.interaction-item i {
+    font-size: 1.2rem;
+}
 
 
 

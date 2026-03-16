@@ -23,9 +23,21 @@ export async function renderizarPost(id, p, usuario) {
       <div class="post-text">${escaparHTML(p.texto)}</div>
       ${p.imagem ? `<img class="post-img" src="${p.imagem}">` : ""}
       <div class="post-interactions">
-        <span class="btn-like">${meuLike ? '💔' : '❤️'} ${totalLikes}</span>
-        <span class="btn-comentario">💬 Comentários</span>
-        ${p.uid === usuario.uid ? `<span class="btn-deletar">🗑</span>` : ""}
+          <div class="interaction-item btn-like">
+              <i class="${meuLike ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}" 
+                style="color: ${meuLike ? '#ff3131' : 'inherit'}"></i>
+              <span>${totalLikes}</span>
+          </div>
+          
+          <div class="interaction-item btn-comentario">
+              <i class="fa-regular fa-comment"></i>
+              <span>Comentários</span>
+          </div>
+
+          ${p.uid === usuario.uid ? `
+          <div class="interaction-item btn-deletar">
+              <i class="fa-regular fa-trash-can"></i>
+          </div>` : ""}
       </div>
       <div id="comentarios-${id}"></div>
     </div>
