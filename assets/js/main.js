@@ -1,14 +1,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { initAuth } from './auth.js';
 import { criarPostNovo } from './posts.js';
+import { deslogar } from './auth.js';
 
-import './feed.js';
+document.getElementById("btnLogout")?.addEventListener("click", deslogar);
+
+// Importar para garantir que os listeners globais de comentários e likes sejam registrados
 import './comments.js';
 import './likes.js';
-import './seguindo.js';
-import './postRender.js';
 
-// Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB19gxl7E3NeqKKZ9pNe634wtbkghXNSVM",
   authDomain: "senax-rede.firebaseapp.com",
@@ -19,8 +19,14 @@ const firebaseConfig = {
   appId: "1:714869150902:web:2ee1f1d634624113a4c217"
 };
 
-// Inicialização do Firebase
 initializeApp(firebaseConfig);
 
-// Inicia a autenticação e escuta de usuários
+// Apenas inicialize o Auth. 
+// O carregamento do feed já acontece dentro do onAuthStateChanged lá no auth.js
 initAuth();
+
+// Botão de criar post (garantindo que o evento seja anexado)
+const btnPostar = document.querySelector(".btn-post-submit");
+if (btnPostar) {
+    btnPostar.addEventListener("click", criarPostNovo);
+}

@@ -118,10 +118,27 @@
 }
 
 .feed-container {
-    margin-left: 260px; /* Ajustado para bater com a largura da sidebar */
-    max-width: 800px;
+    /* espaço da sidebar na esquerda */
+    margin-left: 260px; 
+    
+    /* ocupa o restante da largura disponível */
+    width: calc(100% - 260px); 
+    
+    /* centraliza o conteúdo interno */
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    
+    padding: 20px;
     min-height: 100vh;
-    border-right: 1px solid #eee;
+}
+
+/* limita a largura dos posts para não ficarem "esticados" demais */
+.feed-header, 
+.create-post, 
+#posts-feed {
+    width: 100%;
+    max-width: 800px;
 }
 
 .feed-header {
@@ -394,6 +411,11 @@ textarea {
         border-radius: 50%;
         padding: 0;
     }
+
+    .feed-container {
+        margin-left: 80px;
+        width: calc(100% - 80px);
+    }
 }
 
 /* --- MOBILE --- */
@@ -408,6 +430,18 @@ textarea {
         align-items: center;
         justify-content: space-around;
         z-index: 999;
+    }
+
+    .feed-container {
+        margin-left: 0;
+        width: 100%;
+        padding-bottom: 80px;
+    }
+    
+    .feed-header, 
+    .create-post, 
+    #posts-feed {
+        max-width: 100%;
     }
 
     .nav-links {

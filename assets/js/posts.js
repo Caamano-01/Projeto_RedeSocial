@@ -1,5 +1,4 @@
-import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-import { ref as sRef, uploadBytes, getDownloadURL, getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { usuarioAtual, usuarioDados, getAvatarUsuario } from './auth.js';
 
 const fileInput = document.getElementById("file-input");
@@ -26,18 +25,25 @@ export async function criarPostNovo() {
   if (!usuarioAtual || !usuarioDados) return;
 
   const db = getDatabase();
-  const storage = getStorage();
   const texto = postText.value.trim();
   const file = fileInput.files[0];
   if (!texto && !file) return;
 
   let imagem = null;
 
-  // Upload da imagem, se houver
+  // Upload para Cloudinary
   if (file) {
-    const imgRef = sRef(storage, "posts/" + Date.now() + "_" + file.name);
-    await uploadBytes(imgRef, file);
-    imagem = await getDownloadURL(imgRef);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "rede_senax");
+
+    const res = await fetch("https://api.cloudinary.com/v1_1/dywza3kuv/image/upload", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+    imagem = data.secure_url;
   }
 
   const post = {
@@ -60,6 +66,4 @@ export async function criarPostNovo() {
 
 // Botão de postar
 const btnPostar = document.querySelector(".btn-post-submit");
-if (btnPostar) {
-  btnPostar.addEventListener("click", criarPostNovo);
-}
+if (btnPostar) btnPostar.addEventListener("click", criarPostNovo);

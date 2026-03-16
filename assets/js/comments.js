@@ -1,9 +1,11 @@
-import { getDatabase, ref, onValue, push, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { usuarioAtual } from './auth.js';
 import { escaparHTML } from './utils.js';
 
-// Abrir comentários de um post
+const comentariosListeners = {};
+
 export function abrirComentarios(id, usuario) {
-  const db = getDatabase(); // Inicializa aqui
+  const db = getDatabase();
   const c = document.getElementById("comentarios-" + id);
 
   c.innerHTML = `
@@ -14,43 +16,55 @@ export function abrirComentarios(id, usuario) {
     <div id="lista-${id}"></div>
   `;
 
-  document.getElementById(`btn-comentar-${id}`).addEventListener("click", () => {
-    enviarComentario(id, usuario);
-  });
-
+  document.getElementById(`btn-comentar-${id}`).addEventListener("click", () => enviarComentario(id, usuario));
   carregarComentarios(id);
 }
 
-// Enviar comentário
 export async function enviarComentario(id, usuario) {
-  const db = getDatabase(); // Inicializa aqui
+  const db = getDatabase();
   const input = document.getElementById("comentario-" + id);
   const texto = input.value.trim();
   if (!texto) return;
 
-  const snap = await get(ref(db,"usuarios/"+usuario.uid));
+  const snap = await get(ref(db, "usuarios/" + usuario.uid));
   const u = snap.val();
 
-  await push(ref(db,"comentarios/"+id),{
+  await push(ref(db, "comentarios/" + id), {
+    uid: usuario.uid,
     nome: u.nome,
-    texto
+    texto,
+    timestamp: Date.now()
   });
 
-  input.value="";
+  input.value = "";
+  const lista = document.getElementById("lista-" + id);
+  lista.scrollTop = lista.scrollHeight;
 }
 
-// Carregar comentários
 export function carregarComentarios(id) {
   const db = getDatabase();
-  onValue(ref(db,"comentarios/"+id),(snap)=>{
-    const lista = document.getElementById("lista-"+id);
-    lista.innerHTML="";
+
+  if (comentariosListeners[id]) comentariosListeners[id](); // remove listener antigo
+
+  const listener = onValue(ref(db, "comentarios/" + id), (snap) => {
+    const lista = document.getElementById("lista-" + id);
+    lista.innerHTML = "";
     const dados = snap.val();
-    if(!dados) return;
-    Object.values(dados).forEach((c)=>{
-      lista.innerHTML += `<p><strong>${escaparHTML(c.nome)}</strong>: ${escaparHTML(c.texto)}</p>`;
-    });
+    if (!dados) return;
+
+    const fragment = document.createDocumentFragment();
+    Object.values(dados)
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .forEach(c => {
+        const p = document.createElement("p");
+        p.innerHTML = `<strong>${escaparHTML(c.nome)}</strong>: ${escaparHTML(c.texto)}`;
+        fragment.appendChild(p);
+      });
+    lista.appendChild(fragment);
+    lista.scrollTop = lista.scrollHeight;
   });
+
+  comentariosListeners[id] = listener;
 }
 
 window.abrirComentarios = abrirComentarios;

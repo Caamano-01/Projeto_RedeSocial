@@ -3,15 +3,15 @@ import { curtir } from './likes.js';
 import { abrirComentarios } from './comments.js';
 import { escaparHTML, tempo } from './utils.js';
 
-// Renderizar um post
 export async function renderizarPost(id, p, usuario) {
   const db = getDatabase();
   const div = document.createElement("div");
   div.className = "post";
 
-  const likesSnap = await get(ref(db,"likes/"+id));
-  const totalLikes = likesSnap.exists() ? Object.keys(likesSnap.val()).length : 0;
-  const meuLike = likesSnap.val()?.[usuario.uid];
+  const likesSnap = await get(ref(db, "likes/" + id));
+  const likesData = likesSnap.exists() ? likesSnap.val() : {};
+  const totalLikes = Object.keys(likesData).length;
+  const meuLike = likesData[usuario.uid];
 
   div.innerHTML = `
     <img class="post-user-img" src="${p.avatar}">
@@ -25,26 +25,25 @@ export async function renderizarPost(id, p, usuario) {
       <div class="post-interactions">
         <span class="btn-like">${meuLike ? '💔' : '❤️'} ${totalLikes}</span>
         <span class="btn-comentario">💬 Comentários</span>
-        ${p.uid===usuario.uid ? `<span class="btn-deletar">🗑</span>` : ""}
+        ${p.uid === usuario.uid ? `<span class="btn-deletar">🗑</span>` : ""}
       </div>
       <div id="comentarios-${id}"></div>
     </div>
   `;
 
-  // Event listeners
   div.querySelector(".btn-like").addEventListener("click", () => curtir(id, usuario));
   div.querySelector(".btn-comentario").addEventListener("click", () => abrirComentarios(id, usuario));
-  if(p.uid === usuario.uid) {
+  if (p.uid === usuario.uid) {
     div.querySelector(".btn-deletar").addEventListener("click", () => deletarPost(id));
   }
 
   return div;
 }
 
-// Deletar post
 export function deletarPost(id) {
+  if (!confirm("Deseja realmente deletar este post?")) return;
   const db = getDatabase();
-  remove(ref(db,"posts/"+id));
+  remove(ref(db, "posts/" + id));
 }
 
 window.deletarPost = deletarPost;

@@ -37,16 +37,15 @@ export function initAuth() {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       usuarioAtual = user;
-      console.log("Usuário logado:", user.uid);
-
-      // Atualiza sidebar e avatar de post
-      await atualizarSidebarUsuario();
-
-      // Carregar feed e seguindo
-      carregarPosts();
+      
+      // Pegar os dados do banco
+      await atualizarSidebarUsuario(); 
+      
+      // depois carregar o que depende dos dados (como o feed)
       carregarSeguindo();
+      carregarPosts();
     } else {
-      window.location.href = "./index.html"; // Redireciona se não logado
+      window.location.href = "./index.html";
     }
   });
 }
