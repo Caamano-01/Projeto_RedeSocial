@@ -251,7 +251,6 @@ textarea {
     display: flex;
     gap: 12px;
     padding: 15px;
-    border-bottom: 1px solid #eee; /* Linha sutil separando posts */
 }
 
 /* Garante que a imagem não encolha */

@@ -14,54 +14,53 @@ export async function renderizarPost(id, p, usuario) {
   const meuLike = likesData[usuario.uid];
 
   div.innerHTML = `
-    <div class="post-container-flex" onclick="location.href='perfil.html?uid=${p.uid}'" style="cursor:pointer;">
-      <img class="post-user-img" src="${p.avatar}">
+    <div class="post-container-flex">
+      <img class="post-user-img" src="${p.avatar}" 
+           onclick="window.location.href='perfil.html?uid=${p.uid}'" 
+           style="cursor:pointer;">
 
       <div class="post-body">
         <div class="post-header-info">
-          <span class="post-author-name">${escaparHTML(p.nome)}</span>
+          <span class="post-author-name" 
+                onclick="window.location.href='perfil.html?uid=${p.uid}'" 
+                style="cursor:pointer; font-weight: bold;">${escaparHTML(p.nome)}</span>
           <span class="post-metadata"> · ${tempo(p.timestamp)}</span>
         </div>
       
         <div class="post-text">${escaparHTML(p.texto)}</div>
-
         ${p.imagem ? `<img class="post-img" src="${p.imagem}">` : ""}
         
         <div class="post-interactions">
           <div class="interaction-item btn-like">
               <i class="${meuLike ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}" 
-                style="color: ${meuLike ? '#ff3131' : 'inherit'}"></i>
+                 style="color: ${meuLike ? '#ff3131' : 'inherit'}"></i>
               <span>${totalLikes}</span>
           </div>
-          
           <div class="interaction-item btn-comentario">
               <i class="fa-regular fa-comment"></i>
               <span>Comentários</span>
           </div>
-
           ${p.uid === usuario.uid ? `
           <div class="interaction-item btn-deletar">
               <i class="fa-regular fa-trash-can"></i>
           </div>` : ""}
-          </div>
-          <div id="comentarios-${id}"></div>
         </div>
+        <div id="comentarios-${id}"></div>
+      </div>
     </div>
   `;
 
-  div.querySelector(".btn-like").addEventListener("click", () => curtir(id, usuario));
-  div.querySelector(".btn-comentario").addEventListener("click", () => abrirComentarios(id, usuario));
-  if (p.uid === usuario.uid) {
-    div.querySelector(".btn-deletar").addEventListener("click", () => deletarPost(id));
-  }
+  // Listeners protegidos
+  div.querySelector(".btn-like").onclick = (e) => { e.stopPropagation(); curtir(id, usuario); };
+  div.querySelector(".btn-comentario").onclick = (e) => { e.stopPropagation(); abrirComentarios(id, usuario); };
+  
+  const btnDel = div.querySelector(".btn-deletar");
+  if (btnDel) btnDel.onclick = (e) => { e.stopPropagation(); deletarPost(id); };
 
   return div;
 }
 
 export function deletarPost(id) {
   if (!confirm("Deseja realmente deletar este post?")) return;
-  const db = getDatabase();
-  remove(ref(db, "posts/" + id));
+  remove(ref(getDatabase(), "posts/" + id));
 }
-
-window.deletarPost = deletarPost;

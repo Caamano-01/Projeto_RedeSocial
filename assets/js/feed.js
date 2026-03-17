@@ -7,7 +7,7 @@ export const feed = document.getElementById("posts-feed");
 export let modoFeed = "todos";
 
 export function carregarPosts() {
-  if (!usuarioAtual) return;
+  if (!usuarioAtual || !feed) return;
   const db = getDatabase();
   const postsQuery = query(ref(db, "posts"), orderByChild("timestamp"), limitToLast(50));
 
@@ -18,31 +18,31 @@ export function carregarPosts() {
 
     const posts = Object.entries(dados).sort((a, b) => b[1].timestamp - a[1].timestamp);
 
-    // Dentro de carregarPosts
     for (const [id, p] of posts) {
-      // Se o modo for "seguindo" e o autor não estiver na lista, pula
-      if (modoFeed === "seguindo" && (!listaSeguindo || !listaSeguindo[p.uid])) {
-        continue;
-      }
+      if (modoFeed === "seguindo" && (!listaSeguindo || !listaSeguindo[p.uid])) continue;
       
-      // No modo "todos" (Para Você), ele deve passar direto e renderizar
       const postElemento = await renderizarPost(id, p, usuarioAtual);
       feed.appendChild(postElemento);
     }
   });
 }
 
-// Tabs feed
-document.getElementById("tab-para-voce").onclick = () => {
-  modoFeed = "todos";
-  document.getElementById("tab-para-voce").classList.add("active");
-  document.getElementById("tab-seguindo").classList.remove("active");
-  carregarPosts();
-};
+// Configuração das abas (apenas se existirem na tela)
+const tabParaVoce = document.getElementById("tab-para-voce");
+const tabSeguindo = document.getElementById("tab-seguindo");
 
-document.getElementById("tab-seguindo").onclick = () => {
-  modoFeed = "seguindo";
-  document.getElementById("tab-seguindo").classList.add("active");
-  document.getElementById("tab-para-voce").classList.remove("active");
-  carregarPosts();
-};
+if (tabParaVoce && tabSeguindo) {
+  tabParaVoce.onclick = () => {
+    modoFeed = "todos";
+    tabParaVoce.classList.add("active");
+    tabSeguindo.classList.remove("active");
+    carregarPosts();
+  };
+
+  tabSeguindo.onclick = () => {
+    modoFeed = "seguindo";
+    tabSeguindo.classList.add("active");
+    tabParaVoce.classList.remove("active");
+    carregarPosts();
+  };
+}
