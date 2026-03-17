@@ -3,73 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SenaX</title>
-
+    <title>SenaX - Perfil</title>
     <link rel="icon" href="../assets/img/S-logo-escura.png">
-
-    <!-- Font Awesome Oficial -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/perfil.css">
 </head>
 <body>
-    <!-- (SIDEBAR)BARRA DE NAVEGAÇÃO -->
     <aside class="sidebar">
         <div class="sidebar-top">
             <img src="../assets/img/logo-clara.png" alt="SenaX" class="sidebar-logo">
-
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" placeholder="Buscar">
             </div>
-
             <nav class="nav-links">
-                <a href="./page_inicial.html">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Página inicial</span>
-                </a>
-                <a href="#">
-                    <i class="fa-solid fa-envelope"></i>
-                    <span>Bate-papo</span>
-                </a>
-                <a href="./perfil.html">
-                    <i class="fa-solid fa-user"></i>
-                    <span>Perfil</span>
-                </a>
-                <a href="#" id="btnLogout">
-                    <i class="fa-solid fa-right-from-bracket"></i> 
-                    <span>Sair</span>
-                </a>
+                <a href="./page_inicial.html"><i class="fa-solid fa-house"></i> <span>Página inicial</span></a>
+                <a href="#"><i class="fa-solid fa-envelope"></i> <span>Bate-papo</span></a>
+                <a href="./perfil.html"><i class="fa-solid fa-user"></i> <span>Perfil</span></a>
+                <a href="#" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i> <span>Sair</span></a>
             </nav>
-
-            <button class="btn-postar">
-                <span>Postar</span>
-                <i class="fa-solid fa-plus"></i>
-            </button>
+            <button class="btn-postar"><span>Postar</span><i class="fa-solid fa-plus"></i></button>
         </div>
-    
         <div class="user-footer">
             <img id="userAvatar" class="user-avatar">
             <span id="userName" class="user-name"></span>
         </div>
     </aside>
 
-    <!-- MAIN(PERFIL) -->
-     <main class="feed-container">
+    <main class="feed-container">
         <div class="perfil-header-container">
             <img id="perfil-avatar" src="../assets/img/default-avatar.png" class="avatar-perfil">
-            <h2 id="perfil-nome">Carregando...</h2>
-            <p id="perfil-turma" class="info-turma"></p>
-            <p id="perfil-descricao"></p>
-            <button id="btn-seguir-acao" class="btn-seguir">Seguir</button>
+        </div>
 
+        <div class="perfil-info-wrapper">
+            <h2 id="perfil-nome">Carregando...</h2>
+            <span id="perfil-turma" class="info-turma"></span>
+
+            <p id="perfil-descricao">Carregando descrição...</p>
+
+            <div class="stats-container">
+                <div class="stat-item">
+                    <strong id="num-seguindo">0</strong> <span>Seguindo</span>
+                </div>
+                <div class="stat-item">
+                    <strong id="num-seguidores">0</strong> <span>Seguidores</span>
+                </div>
+            </div>
+
+            <button id="btn-seguir-acao" class="btn-seguir">Seguir</button>
             <button id="btn-editar-perfil" class="btn-editar" style="display: none;">Editar Perfil</button>
         </div>
 
         <div id="posts-usuario">
+            <h3 class="titulo-posts">Posts</h3>
             </div>
-     </main>
+    </main>
 
-    <!-- SCRIPTS -->
+    <!-- MODAL DE EDITAR PERFIL -->
+     <div id="modal-editar" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Editar Perfil</h3>
+            
+            <div class="edit-avatar-section">
+                <img id="edit-preview-avatar" src="../assets/img/default-avatar.png" class="avatar-perfil-preview">
+                <label for="input-foto" class="label-foto">Alterar Foto</label>
+                <input type="file" id="input-foto" accept="image/*" style="display: none;">
+            </div>
+
+            <div class="input-group">
+                <label>Nome</label>
+                <input type="text" id="edit-nome">
+            </div>
+
+            <div class="input-group">
+                <label>Turma</label>
+                <input type="text" id="edit-turma">
+            </div>
+
+            <div class="input-group">
+                <label>Descrição (bio)</label>
+                <textarea id="edit-descricao" rows="4"></textarea>
+            </div>
+
+            <button id="btn-salvar-perfil" class="btn-postar">Salvar Alterações</button>
+        </div>
+     </div>
+
     <script type="module" src="../assets/js/main.js"></script>
     <script type="module" src="../assets/js/perfil.js"></script>
 </body>
