@@ -1,13 +1,25 @@
-import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, get, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { curtir } from './likes.js';
 import { abrirComentarios } from './comments.js';
 import { escaparHTML, tempo } from './utils.js';
+
+function monitorarContagemComentarios(idPost, db) {
+    const contagemRef = ref(db, "comentarios/" + idPost);
+    onValue(contagemRef, (snapshot) => {
+        const span = document.getElementById(`contagem-${idPost}`);
+        if (span) {
+            const total = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+            span.innerText = total;
+        }
+    });
+}
 
 export async function renderizarPost(id, p, usuario) {
   const db = getDatabase();
   const div = document.createElement("div");
   div.className = "post";
 
+  // Busca Likes
   const likesSnap = await get(ref(db, "likes/" + id));
   const likesData = likesSnap.exists() ? likesSnap.val() : {};
   const totalLikes = Object.keys(likesData).length;
@@ -36,10 +48,12 @@ export async function renderizarPost(id, p, usuario) {
                  style="color: ${meuLike ? '#ff3131' : 'inherit'}"></i>
               <span>${totalLikes}</span>
           </div>
+
           <div class="interaction-item btn-comentario">
               <i class="fa-regular fa-comment"></i>
-              <span>Comentários</span>
+              <span id="contagem-${id}">0</span>
           </div>
+
           ${p.uid === usuario.uid ? `
           <div class="interaction-item btn-deletar">
               <i class="fa-regular fa-trash-can"></i>
@@ -50,12 +64,16 @@ export async function renderizarPost(id, p, usuario) {
     </div>
   `;
 
-  // Listeners protegidos
+  // Listeners de clique
   div.querySelector(".btn-like").onclick = (e) => { e.stopPropagation(); curtir(id, usuario); };
   div.querySelector(".btn-comentario").onclick = (e) => { e.stopPropagation(); abrirComentarios(id, usuario); };
   
   const btnDel = div.querySelector(".btn-deletar");
-  if (btnDel) btnDel.onclick = (e) => { e.stopPropagation(); deletarPost(id); };
+  if (btnDel) {
+      btnDel.onclick = (e) => { e.stopPropagation(); deletarPost(id); };
+  }
+
+  monitorarContagemComentarios(id, db);
 
   return div;
 }
@@ -63,4 +81,6 @@ export async function renderizarPost(id, p, usuario) {
 export function deletarPost(id) {
   if (!confirm("Deseja realmente deletar este post?")) return;
   remove(ref(getDatabase(), "posts/" + id));
+  remove(ref(getDatabase(), "comentarios/" + id));
+  remove(ref(getDatabase(), "likes/" + id));
 }

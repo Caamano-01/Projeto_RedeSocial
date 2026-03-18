@@ -10,10 +10,10 @@ export function abrirComentarios(id, usuario) {
 
   c.innerHTML = `
     <div class="comment-box">
-      <input id="comentario-${id}" placeholder="Comentar">
-      <button id="btn-comentar-${id}">Enviar</button>
+      <input id="comentario-${id}" placeholder="Postar sua resposta">
+      <button id="btn-comentar-${id}">Responder</button>
     </div>
-    <div id="lista-${id}"></div>
+    <div id="lista-${id}" class="lista-comentarios"></div>
   `;
 
   document.getElementById(`btn-comentar-${id}`).addEventListener("click", () => enviarComentario(id, usuario));
@@ -32,6 +32,7 @@ export async function enviarComentario(id, usuario) {
   await push(ref(db, "comentarios/" + id), {
     uid: usuario.uid,
     nome: u.nome,
+    fotoPerfil: u.fotoPerfil || "",
     texto,
     timestamp: Date.now()
   });
@@ -56,15 +57,42 @@ export function carregarComentarios(id) {
     Object.values(dados)
       .sort((a, b) => a.timestamp - b.timestamp)
       .forEach(c => {
-        const p = document.createElement("p");
-        p.innerHTML = `<strong>${escaparHTML(c.nome)}</strong>: ${escaparHTML(c.texto)}`;
-        fragment.appendChild(p);
+        const div = document.createElement("div");
+        div.className = "comentario-item";
+        const tempo = formatarTempo(c.timestamp);
+
+        // Lógica para decidir qual foto mostrar
+        const fotoExibida = c.fotoPerfil 
+          ? c.fotoPerfil 
+          : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.nome)}&background=ff7804&color=fff`;
+
+        div.innerHTML = `
+          <img class="avatar" src="${fotoExibida}" alt="Perfil">
+          <div class="comentario-conteudo">
+            <div class="comentario-topo">
+              <span class="nome">${escaparHTML(c.nome)}</span>
+              <span class="tempo">${tempo}</span>
+            </div>
+            <div class="texto">${escaparHTML(c.texto)}</div>
+          </div>
+        `;
+        fragment.appendChild(div);
       });
     lista.appendChild(fragment);
     lista.scrollTop = lista.scrollHeight;
   });
 
   comentariosListeners[id] = listener;
+}
+
+function formatarTempo(timestamp) {
+  const agora = Date.now();
+  const diff = Math.floor((agora - timestamp) / 1000);
+
+  if (diff < 60) return `${diff}s`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+  return `${Math.floor(diff / 86400)}d`;
 }
 
 window.abrirComentarios = abrirComentarios;
