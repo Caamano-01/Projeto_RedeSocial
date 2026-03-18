@@ -1,5 +1,5 @@
 import './firebase-config.js'; // Inicializa o Firebase
-import { getDatabase, ref, get, onValue, query, orderByChild, equalTo, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, get, onValue, query, orderByChild, equalTo, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { renderizarPost } from './postRender.js';
 import { atualizarSidebarUsuario } from './auth.js';
@@ -11,14 +11,63 @@ const db = getDatabase();
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        await atualizarSidebarUsuario();
-        // Se não houver UID na URL, assume que o utilizador quer ver o seu próprio perfil
         const idParaCarregar = perfilId || user.uid;
         
         carregarDadosPerfil(idParaCarregar, user);
         carregarPostsUsuario(idParaCarregar, user);
+        
+        monitorarContadores(idParaCarregar); 
+        
     } else {
         window.location.href = "index.html";
+    }
+
+    const btnSeguir = document.getElementById("btn-seguir-acao");
+
+    if (btnSeguir && perfilId && perfilId !== user.uid) {
+        btnSeguir.onclick = async () => {
+            const meuUid = user.uid;
+            const alvoUid = perfilId;
+
+            const caminhoSeguindo = ref(db, `seguindo/${meuUid}/${alvoUid}`);
+            const caminhoSeguidores = ref(db, `seguidores/${alvoUid}/${meuUid}`);
+            
+            const snap = await get(caminhoSeguindo);
+
+            if (snap.exists()) {
+                // Parar de seguir
+                await remove(caminhoSeguindo);
+                await remove(caminhoSeguidores);
+            } else {
+                // Começar a seguir
+                await set(caminhoSeguindo, true);
+                await set(caminhoSeguidores, true);
+            }
+        };
+    }
+
+    function monitorarContadores(uidPerfil) {
+        const db = getDatabase();
+
+        // Contar quem este perfil segue
+        const seguindoRef = ref(db, `seguindo/${uidPerfil}`);
+        onValue(seguindoRef, (snap) => {
+            const countEl = document.getElementById("count-seguindo");
+            if (countEl) {
+                const total = snap.exists() ? Object.keys(snap.val()).length : 0;
+                countEl.textContent = total;
+            }
+        });
+
+        // Contar quantos seguidores este perfil tem
+        const seguidoresRef = ref(db, `seguidores/${uidPerfil}`);
+        onValue(seguidoresRef, (snap) => {
+            const countEl = document.getElementById("count-seguidores");
+            if (countEl) {
+                const total = snap.exists() ? Object.keys(snap.val()).length : 0;
+                countEl.textContent = total;
+            }
+        });
     }
 });
 

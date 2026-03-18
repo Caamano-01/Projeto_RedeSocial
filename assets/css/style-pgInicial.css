@@ -645,4 +645,9 @@ textarea {
     .btn-postar {
         display: none;
     }
+
+    .tab {
+        font-size: 0.9rem;
+        padding: 12px;
+    }
 }
