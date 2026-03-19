@@ -301,7 +301,7 @@ textarea {
 .post-img {
     width: 100%;
     max-height: 512px;
-    border-radius: 16px;
+    border-radius: 12px;
     border: 1px solid #cfd9de;
     object-fit: cover;
     margin-top: 5px;
@@ -611,6 +611,55 @@ textarea {
 
 /* --- MOBILE --- */
 @media (max-width: 480px) {
+    .user-avatar-mini {
+        width: 45px;
+        height: 45px;
+        margin-left: 0;
+    }
+
+    textarea{
+        font-size: 1rem;
+    }
+
+    .post-actions {
+        margin-top: 5px;
+    }
+
+    .create-post {
+        padding: 5px;
+    }
+
+    .post {
+        padding: 5px;
+    }
+
+    .post-header-info {
+        font-size: 0.95rem;
+    }
+
+    .post-user-img {
+        width: 42px;
+        height: 42px;
+        margin-left: 0;
+    }
+
+    .post-container-flex {
+        gap: 12px;
+        padding: 1px;
+    }
+
+    .post-text {
+        font-size: 0.90rem;
+    }
+
+    .interaction-item{
+        font-size: 1rem;
+    }
+
+    .interaction-item i {
+        font-size: 1rem;
+    }
+
     .sidebar {
         width: 100%;
         height: 60px;
