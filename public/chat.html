@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SenaX</title>
-
+    <title>SenaX - Bate-papo</title>
     <link rel="icon" href="../assets/img/S-logo-escura.png">
 
-    <!-- Font Awesome Oficial -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <link rel="stylesheet" href="../assets/css/style-pgInicial.css">
+    <link rel="stylesheet" href="../assets/css/chat.css">
 </head>
 <body>
-
     <!-- (SIDEBAR)BARRA DE NAVEGAÇÃO -->
     <aside class="sidebar">
 
@@ -57,35 +53,54 @@
 
     </aside>
 
-    <!-- MAIN(FEED) -->
-    <main class="feed-container">
-        <header class="feed-header">
-            <div class="tab active" id="tab-para-voce">Para você</div>
-            <div class="tab" id="tab-seguindo">Seguindo</div>
-        </header>
+    <main class="container">
+        <!-- LISTA DE CONVERSAS -->
+        <section class="chat-list">
+            <header>
+                <h2>Mensagens</h2>
+            </header>
 
-        <section class="create-post">
-            <div class="post-input-wrapper">
-                <img id="postAvatar" class="user-avatar-mini">
-                <textarea id="postText" placeholder="O que está acontecendo?"></textarea>
+            <div id="lista-contatos"></div>
+        </section>
+
+
+        <!-- ÁREA DO CHAT -->
+        <section class="chat-area">
+
+            <!-- estado vazio -->
+            <div id="chat-vazio" class="empty-state">
+                <i class="fa-regular fa-comments"></i>
+                <p>Selecione uma conversa</p>
             </div>
 
-            <div class="post-actions">
-                <label for="file-input">
-                    <i class="fa-regular fa-image"></i>
-                </label>
-                <input type="file" id="file-input" hidden>
-                <button class="btn-post-submit">Postar</button>
+            <!-- chat ativo -->
+            <div id="chat-ativo" class="chat-box">
+
+                <!-- header -->
+                <header class="chat-header">
+                    <img id="chat-target-avatar">
+                    <div>
+                        <strong id="chat-target-name"></strong>
+                        <div id="digitando-indicator"></div>
+                    </div>
+                </header>
+
+                <!-- mensagens -->
+                <div id="chat-messages" class="messages"></div>
+
+                <!-- input -->
+                <div class="chat-input">
+                    <input type="text" id="msg-input" placeholder="Digite uma mensagem...">
+                    <button id="btn-enviar-msg">
+                        <i class="fa fa-paper-plane"></i>
+                    </button>
+                </div>
+
             </div>
         </section>
 
-        <section id="posts-feed">
-            <!-- Posts serão carregados aqui -->
-        </section>
     </main>
 
-    <!-- SCRIPT PRINCIPAL -->
-    <script type="module" src="../assets/js/main.js" defer></script>
-    <script type="module" src="../assets/js/feed.js" ></script>
+    <script type="module" src="../assets/js/chat.js"></script>
 </body>
 </html>
