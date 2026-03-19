@@ -1,6 +1,6 @@
 import './firebase-config.js'; // Inicializa o Firebase
-import { getDatabase, ref, get, onValue, query, orderByChild, equalTo, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getDatabase, ref, get, onValue, query, orderByChild, equalTo, update, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { renderizarPost } from './postRender.js';
 import { atualizarSidebarUsuario } from './auth.js';
 
@@ -11,174 +11,117 @@ const db = getDatabase();
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        // BLOQUEIO DE EMAIL NÃO INSTITUCIONAL
+        if (!user.email.endsWith("@aluno.senai.br")) {
+            alert("Acesso negado! Use apenas seu e-mail @aluno.senai.br");
+            await signOut(auth);
+            window.location.href = "index.html";
+            return;
+        }
+
         const idParaCarregar = perfilId || user.uid;
         
         carregarDadosPerfil(idParaCarregar, user);
         carregarPostsUsuario(idParaCarregar, user);
-        
         monitorarContadores(idParaCarregar); 
         
+        // configuração do botão Seguir
+        const btnSeguir = document.getElementById("btn-seguir-acao");
+        if (btnSeguir && perfilId && perfilId !== user.uid) {
+            verificarSeguindo(user.uid, perfilId);
+            
+            btnSeguir.onclick = async () => {
+                const meuUid = user.uid;
+                const alvoUid = perfilId;
+                const caminhoSeguindo = ref(db, `seguindo/${meuUid}/${alvoUid}`);
+                const caminhoSeguidores = ref(db, `seguidores/${alvoUid}/${meuUid}`);
+
+                const snap = await get(caminhoSeguindo);
+                if (snap.exists()) {
+                    await remove(caminhoSeguindo);
+                    await remove(caminhoSeguidores);
+                } else {
+                    await set(caminhoSeguindo, true);
+                    await set(caminhoSeguidores, true);
+                }
+            };
+        }
     } else {
         window.location.href = "index.html";
     }
-
-    const btnSeguir = document.getElementById("btn-seguir-acao");
-
-    if (btnSeguir && perfilId && perfilId !== user.uid) {
-        btnSeguir.onclick = async () => {
-            const meuUid = user.uid;
-            const alvoUid = perfilId;
-
-            const caminhoSeguindo = ref(db, `seguindo/${meuUid}/${alvoUid}`);
-            const caminhoSeguidores = ref(db, `seguidores/${alvoUid}/${meuUid}`);
-            
-            const snap = await get(caminhoSeguindo);
-
-            if (snap.exists()) {
-                // Parar de seguir
-                await remove(caminhoSeguindo);
-                await remove(caminhoSeguidores);
-            } else {
-                // Começar a seguir
-                await set(caminhoSeguindo, true);
-                await set(caminhoSeguidores, true);
-            }
-        };
-    }
-
-    function monitorarContadores(uidPerfil) {
-        const db = getDatabase();
-
-        // Contar quem este perfil segue
-        const seguindoRef = ref(db, `seguindo/${uidPerfil}`);
-        onValue(seguindoRef, (snap) => {
-            const countEl = document.getElementById("count-seguindo");
-            if (countEl) {
-                const total = snap.exists() ? Object.keys(snap.val()).length : 0;
-                countEl.textContent = total;
-            }
-        });
-
-        // Contar quantos seguidores este perfil tem
-        const seguidoresRef = ref(db, `seguidores/${uidPerfil}`);
-        onValue(seguidoresRef, (snap) => {
-            const countEl = document.getElementById("count-seguidores");
-            if (countEl) {
-                const total = snap.exists() ? Object.keys(snap.val()).length : 0;
-                countEl.textContent = total;
-            }
-        });
-    }
 });
 
-/**
- * Carrega as informações do perfil (Nome, Foto, Turma, Bio)
- */
-async function carregarDadosPerfil(uidPerfil, userLogado) {
-    const snap = await get(ref(db, `usuarios/${uidPerfil}`));
-    
+// carrega informações básicas do perfil
+async function carregarDadosPerfil(id, userLogado) {
+    const userRef = ref(db, `usuarios/${id}`);
+    const snap = await get(userRef);
+
+    const btnSeguir = document.getElementById("btn-seguir-acao");
+    const btnEditar = document.getElementById("btn-editar-perfil");
+
     if (snap.exists()) {
         const dados = snap.val();
-        
-        // Preencher elementos da interface
-        document.getElementById("perfil-nome").textContent = dados.nome || "Utilizador";
+
+        document.getElementById("perfil-nome").textContent = dados.nome || "Usuário";
+        document.getElementById("perfil-turma").textContent = dados.turma || "Sem turma";
+        document.getElementById("perfil-descricao").textContent = dados.descricao || "Sem bio definida.";
         document.getElementById("perfil-avatar").src = dados.fotoPerfil || "../assets/img/default-avatar.png";
-        document.getElementById("perfil-turma").textContent = dados.turma ? `Turma: ${dados.turma}` : "Turma não informada";
-        document.getElementById("perfil-descricao").textContent = dados.descricao || "Sem descrição.";
-        
-        const btnSeguir = document.getElementById("btn-seguir-acao");
-        const btnEditar = document.getElementById("btn-editar-perfil");
 
-        // Lógica: Se o perfil visualizado for do próprio utilizador logado
-        if (userLogado.uid === uidPerfil) {
+        if (id === userLogado.uid) {
+            // Meu perfil
+            if (btnEditar) btnEditar.style.display = "block";
             if (btnSeguir) btnSeguir.style.display = "none";
-            if (btnEditar) {
-                btnEditar.style.display = "block";
-                btnEditar.onclick = () => abrirModalEdicao(dados, userLogado.uid);
-            }
         } else {
-            // Perfil de outra pessoa
-            if (btnSeguir) btnSeguir.style.display = "block";
+            // Perfil de outro usuário
             if (btnEditar) btnEditar.style.display = "none";
-            verificarSeguindo(userLogado.uid, uidPerfil);
+            if (btnSeguir) btnSeguir.style.display = "inline-block";
         }
     }
 }
 
-/**
- * Configura e abre o Modal de Edição
- */
-function abrirModalEdicao(dadosAtuais, meuUid) {
-    const modal = document.getElementById("modal-editar");
-    if (!modal) return;
+// monitora seguidores e seguindo em tempo real
+function monitorarContadores(id) {
+    const seguindoRef = ref(db, `seguindo/${id}`);
+    const seguidoresRef = ref(db, `seguidores/${id}`);
 
-    modal.style.display = "block";
+    onValue(seguindoRef, (snap) => {
+        const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+        const el = document.getElementById("count-seguindo") || document.getElementById("num-seguindo");
+        if (el) el.textContent = count;
+    });
 
-    // Preenche os inputs do modal com os dados atuais do Firebase
-    document.getElementById("edit-nome").value = dadosAtuais.nome || "";
-    document.getElementById("edit-turma").value = dadosAtuais.turma || "";
-    document.getElementById("edit-descricao").value = dadosAtuais.descricao || "";
-    document.getElementById("edit-preview-avatar").src = dadosAtuais.fotoPerfil || "../assets/img/default-avatar.png";
-
-    // Fechar o modal ao clicar no X
-    const btnFechar = document.querySelector(".close-modal");
-    if (btnFechar) {
-        btnFechar.onclick = () => modal.style.display = "none";
-    }
-
-    // Salvar as alterações no Firebase
-    const btnSalvar = document.getElementById("btn-salvar-perfil");
-    btnSalvar.onclick = async () => {
-        const novoNome = document.getElementById("edit-nome").value;
-        const novaTurma = document.getElementById("edit-turma").value;
-        const novaDesc = document.getElementById("edit-descricao").value;
-
-        try {
-            await update(ref(db, `usuarios/${meuUid}`), {
-                nome: novoNome,
-                turma: novaTurma,
-                descricao: novaDesc
-            });
-
-            alert("Perfil atualizado com sucesso!");
-            modal.style.display = "none";
-            window.location.reload();
-        } catch (error) {
-            console.error("Erro ao atualizar perfil:", error);
-            alert("Erro ao salvar alterações.");
-        }
-    };
+    onValue(seguidoresRef, (snap) => {
+        const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+        const el = document.getElementById("count-seguidores") || document.getElementById("num-seguidores");
+        if (el) el.textContent = count;
+    });
 }
 
-/**
- * Carrega apenas os posts feitos pelo dono do perfil
- */
-async function carregarPostsUsuario(uidPerfil, userLogado) {
-    const postsRef = query(ref(db, "posts"), orderByChild("uid"), equalTo(uidPerfil));
+// carrega apenas os posts do usuário dono do perfil
+async function carregarPostsUsuario(id, userLogado) {
+    const postsRef = query(ref(db, "posts"), orderByChild("uid"), equalTo(id));
     
     onValue(postsRef, async (snap) => {
         const container = document.getElementById("posts-usuario");
         if (!container) return;
         
-        container.innerHTML = ""; // Limpa antes de carregar
+        container.innerHTML = "<h3 class='titulo-posts'>Posts</h3>";
         const dados = snap.val();
+        
         if (!dados) {
             container.innerHTML = "<p style='padding:20px;'>Este utilizador ainda não fez publicações.</p>";
             return;
         }
 
-        // Converte para array e ordena por data (mais recente primeiro)
         const posts = Object.entries(dados).sort((a, b) => b[1].timestamp - a[1].timestamp);
         
-        for (const [id, p] of posts) {
-            container.appendChild(await renderizarPost(id, p, userLogado));
+        for (const [postId, p] of posts) {
+            container.appendChild(await renderizarPost(postId, p, userLogado));
         }
     });
 }
 
-/**
- * Verifica se o utilizador logado segue este perfil
- */
+// Verifica se o utilizador logado segue este perfil para mudar o estilo do botão
 function verificarSeguindo(meuUid, perfilAlvoId) {
     const btn = document.getElementById("btn-seguir-acao");
     if (!btn) return;
@@ -193,11 +136,3 @@ function verificarSeguindo(meuUid, perfilAlvoId) {
         }
     });
 }
-
-// Fechar modal se o utilizador clicar fora da caixa branca
-window.onclick = (event) => {
-    const modal = document.getElementById("modal-editar");
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-};

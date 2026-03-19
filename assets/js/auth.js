@@ -36,16 +36,27 @@ export function initAuth() {
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
+      // VERIFICAÇÃO DE E-MAIL INSTITUCIONAL
+      if (!user.email.endsWith("@aluno.senai.br")) {
+        alert("Acesso negado! Use apenas seu e-mail institucional Senai");
+        await signOut(auth);
+        window.location.href = "index.html"; // Redireciona para o login
+        return;
+      }
+
       usuarioAtual = user;
       
       // Pegar os dados do banco
       await atualizarSidebarUsuario(); 
       
-      // depois carregar o que depende dos dados (como o feed)
+      // Carregar o que depende dos dados
       carregarSeguindo();
       carregarPosts();
     } else {
-      window.location.href = "./index.html";
+      // Se não estiver na página de login, redireciona
+      if (!window.location.pathname.endsWith("index.html") && !window.location.pathname.endsWith("/")) {
+          window.location.href = "index.html";
+      }
     }
   });
 }
