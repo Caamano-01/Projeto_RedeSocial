@@ -54,7 +54,7 @@ export function initAuth() {
       carregarPosts();
     } else {
       // Se não estiver na página de login, redireciona
-      if (!window.location.pathname.endsWith("index.html") && !window.location.pathname.endsWith("/")) {
+      if (!window.location.pathname.endsWith("../index.html") && !window.location.pathname.endsWith("/")) {
           window.location.href = "index.html";
       }
     }
@@ -65,6 +65,6 @@ export function initAuth() {
 export function deslogar() {
   const auth = getAuth();
   signOut(auth).then(() => {
-    window.location.href = "./index.html";
+    window.location.href = "../index.html";
   });
 }

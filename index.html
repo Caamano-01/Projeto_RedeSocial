@@ -154,7 +154,7 @@
                 });
 
                 alert("Conta criada com sucesso!");
-                window.location.href = "page_inicial.html";
+                window.location.href = "/public/page_inicial.html";
 
             } catch (error) {
                 alert("Erro: " + error.message);
@@ -174,7 +174,7 @@
 
             signInWithEmailAndPassword(auth, email, senha)
             .then(() => {
-                window.location.href = "page_inicial.html";
+                window.location.href = "/public/page_inicial.html";
             })
             .catch((error) => {
                 alert("Erro: " + error.message);
