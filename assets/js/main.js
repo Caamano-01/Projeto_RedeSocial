@@ -1,6 +1,7 @@
 import './firebase-config.js'; // inicialização antes de tudo
 import { initAuth } from './auth.js';
 import { criarPostNovo } from './posts.js';
+import './busca.js';
 import { deslogar } from './auth.js';
 
 // Importar para garantir que os listeners globais de comentários e likes sejam registrados
