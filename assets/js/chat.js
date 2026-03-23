@@ -1,7 +1,11 @@
 // inicializar Firebase
 import './firebase-config.js';
 
-import {getDatabase, ref, push, onValue, off, update, set, remove, serverTimestamp, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import {
+    getDatabase, ref, push, onValue, off, update,
+    set, remove, serverTimestamp, query, orderByChild, limitToLast
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
 import { initAuth, usuarioAtual } from './auth.js';
 import { escaparHTML } from './utils.js';
 
@@ -23,38 +27,75 @@ const checkAuth = setInterval(() => {
     }
 }, 500);
 
-
-// LISTA DE CONVERSAS
+// LISTAR QUEM SEGUE
 function carregarConversas() {
-    const convRef = query(ref(db, 'conversas'), orderByChild('timestamp'));
+    const lista = document.getElementById('lista-contatos');
+    lista.innerHTML = "<p>Carregando...</p>";
 
-    onValue(convRef, (snapshot) => {
-        const lista = document.getElementById('lista-contatos');
-        lista.innerHTML = "";
+    const seguindoRef = ref(db, `seguindo/${usuarioAtual.uid}`);
+    const convRef = ref(db, 'conversas');
 
-        const conversas = [];
+    onValue(seguindoRef, (snapSeguindo) => {
 
-        snapshot.forEach(child => {
-            const c = child.val();
-            const id = child.key;
+        if (!snapSeguindo.exists()) {
+            lista.innerHTML = "<p>Você não segue ninguém</p>";
+            return;
+        }
 
-            if (c.participantes && c.participantes[usuarioAtual.uid]) {
-                conversas.push({ id, ...c });
-            }
-        });
+        onValue(convRef, (snapConversas) => {
 
-        conversas.reverse();
+            lista.innerHTML = "";
 
-        conversas.forEach(conv => {
-            const outroUid = Object.keys(conv.participantes)
-                .find(uid => uid !== usuarioAtual.uid);
+            const seguindo = snapSeguindo.val();
+            const conversas = snapConversas.val() || {};
 
-            carregarUsuario(outroUid, conv);
-        });
+            Object.keys(seguindo).forEach(uidSeguido => {
+
+                let conversaId = null;
+                let ultimaMensagem = "";
+
+                // procurar conversa existente
+                Object.keys(conversas).forEach(id => {
+                    const c = conversas[id];
+
+                    if (
+                        c.participantes &&
+                        c.participantes[usuarioAtual.uid] &&
+                        c.participantes[uidSeguido]
+                    ) {
+                        conversaId = id;
+                        ultimaMensagem = c.ultimaMensagem || "";
+                    }
+                });
+
+                // se não existir, cria
+                if (!conversaId) {
+                    const novaConv = push(ref(db, 'conversas'));
+
+                    conversaId = novaConv.key;
+
+                    set(novaConv, {
+                        participantes: {
+                            [usuarioAtual.uid]: true,
+                            [uidSeguido]: true
+                        },
+                        timestamp: Date.now(),
+                        ultimaMensagem: ""
+                    });
+                }
+
+                carregarUsuario(uidSeguido, {
+                    id: conversaId,
+                    ultimaMensagem
+                });
+            });
+
+        }, { onlyOnce: true });
+
     });
 }
 
-// buscar dados do usuário
+// CARREGAR USUÁRIO NA LISTA
 function carregarUsuario(uid, conv) {
     const userRef = ref(db, `usuarios/${uid}`);
 
@@ -64,28 +105,41 @@ function carregarUsuario(uid, conv) {
 
         const lista = document.getElementById('lista-contatos');
 
+        // evita duplicação
+        if (document.getElementById(`contato-${uid}`)) return;
+
         const item = document.createElement('div');
         item.className = 'contato-item';
+        item.id = `contato-${uid}`;
 
         item.innerHTML = `
-            <img src="${user.fotoPerfil || '../assets/img/default-avatar.png'}" class="user-avatar-mini">
+            <img src="${user.fotoPerfil || '../assets/img/default-avatar.png'}">
             <div>
                 <strong>${user.nome}</strong>
                 <p class="preview-msg">${escaparHTML(conv.ultimaMensagem || '')}</p>
             </div>
         `;
 
-        item.onclick = (e) => abrirConversa(user, conv.id, item);
+        item.onclick = () => abrirConversa(user, conv.id, item);
 
         lista.appendChild(item);
     });
 }
 
-
 // ABRIR CONVERSA
 function abrirConversa(user, conversaId, element) {
     document.getElementById('chat-vazio').style.display = 'none';
-    document.getElementById('chat-ativo').style.display = 'block';
+
+    const chatAtivo = document.getElementById('chat-ativo');
+    const chatArea = document.querySelector('.chat-area');
+
+    chatAtivo.style.display = 'block';
+    chatArea.classList.add('active');
+
+    // MOBILE
+    if (window.innerWidth <= 480) {
+        document.querySelector('.chat-list').style.display = 'none';
+    }
 
     document.getElementById('chat-target-name').textContent = user.nome;
     document.getElementById('chat-target-avatar').src =
@@ -106,8 +160,7 @@ function abrirConversa(user, conversaId, element) {
     document.getElementById('msg-input').focus();
 }
 
-
-// MENSAGENS (COM PAGINAÇÃO)
+// MENSAGENS
 function escutarMensagens() {
     if (msgRefAtual) off(msgRefAtual);
 
@@ -151,7 +204,7 @@ function escutarMensagens() {
         area.scrollTop = area.scrollHeight;
     });
 
-    // scroll para carregar mais
+    // scroll infinito
     area.addEventListener('scroll', () => {
         if (area.scrollTop === 0) {
             limiteMensagens += 20;
@@ -159,7 +212,6 @@ function escutarMensagens() {
         }
     });
 }
-
 
 // ENVIAR MENSAGEM
 async function enviarMensagem() {
@@ -181,17 +233,11 @@ async function enviarMensagem() {
 
     await update(ref(db, `conversas/${conversaAtivaId}`), {
         ultimaMensagem: texto,
-        timestamp: Date.now(),
-        participantes: {
-            [usuarioAtual.uid]: true,
-            [destinatarioAtual.uid]: true
-        }
+        timestamp: Date.now()
     });
 
-    // parar "digitando"
     remove(ref(db, `digitando/${conversaAtivaId}/${usuarioAtual.uid}`));
 }
-
 
 // DIGITANDO...
 function escutarDigitando() {
@@ -204,20 +250,12 @@ function escutarDigitando() {
             if (child.key !== usuarioAtual.uid) ativo = true;
         });
 
-        let el = document.getElementById('digitando-indicator');
-
-        if (!el) {
-            el = document.createElement('div');
-            el.id = 'digitando-indicator';
-            document.querySelector('.chat-window-header').appendChild(el);
-        }
-
+        const el = document.getElementById('digitando-indicator');
         el.textContent = ativo ? "Digitando..." : "";
     });
 }
 
-
-// detectar digitação
+// DETECTAR DIGITAÇÃO
 const inputMsg = document.getElementById('msg-input');
 
 inputMsg?.addEventListener('input', () => {
@@ -233,6 +271,26 @@ inputMsg?.addEventListener('input', () => {
     }, 1000);
 });
 
+// BOTÃO VOLTAR (MOBILE)
+const btnVoltar = document.getElementById('btn-voltar');
+
+function atualizarBotaoVoltar() {
+    if (!btnVoltar) return;
+
+    if (window.innerWidth <= 480) {
+        btnVoltar.style.display = 'block';
+    } else {
+        btnVoltar.style.display = 'none';
+    }
+}
+
+window.addEventListener('resize', atualizarBotaoVoltar);
+atualizarBotaoVoltar();
+
+btnVoltar?.addEventListener('click', () => {
+    document.querySelector('.chat-list').style.display = 'block';
+    document.querySelector('.chat-area').classList.remove('active');
+});
 
 // EVENTOS
 document.getElementById('btn-enviar-msg')
