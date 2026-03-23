@@ -12,10 +12,20 @@
     <aside class="sidebar">
         <div class="sidebar-top">
             <img src="../assets/img/logo-clara.png" alt="SenaX" class="sidebar-logo">
+            
             <div class="search-container">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Buscar">
+                <i class="fa-solid fa-magnifying-glass" id="btn-abrir-busca"></i>
+
+                <div class="search-overlay">
+                    <div class="search-box">
+                        <i class="fa-solid fa-xmark" id="btn-fechar-busca"></i>
+                        <input type="text" id="input-busca" placeholder="Buscar">
+                    </div>
+
+                    <div id="resultados-busca" class="resultados-busca-wrapper"></div>
+                </div>
             </div>
+
             <nav class="nav-links">
                 <a href="./page_inicial.html"><i class="fa-solid fa-house"></i> <span>Página inicial</span></a>
                 <a href="./chat.html"><i class="fa-solid fa-envelope"></i> <span>Bate-papo</span></a>
