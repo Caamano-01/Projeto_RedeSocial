@@ -1,12 +1,17 @@
-import { 
-    getDatabase, ref, get, query, orderByChild, startAt, endAt 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+// inicializar Firebase
+import './firebase-config.js';
+import { getDatabase, ref, get, query, orderByChild, startAt, endAt } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const db = getDatabase();
+
+// ELEMENTOS
 const inputBusca = document.getElementById('input-busca');
 const resultadosDiv = document.getElementById('resultados-busca');
+const btnAbrir = document.getElementById('btn-abrir-busca');
+const btnFechar = document.getElementById('btn-fechar-busca');
+const overlay = document.querySelector('.search-overlay');
 
-// debounce
+// DEBOUNCE
 let timeout = null;
 
 if (inputBusca) {
@@ -19,18 +24,20 @@ if (inputBusca) {
     });
 }
 
+// BUSCAR USUÁRIOS
 async function buscarUsuarios(valor) {
     const termo = valor.trim().toLowerCase();
 
     if (termo.length < 2) {
         resultadosDiv.style.display = 'none';
+        resultadosDiv.innerHTML = '';
         return;
     }
 
     try {
         const usuariosQuery = query(
             ref(db, 'usuarios'),
-            orderByChild('nome'),
+            orderByChild('nome_lower'),
             startAt(termo),
             endAt(termo + "\uf8ff")
         );
@@ -40,7 +47,6 @@ async function buscarUsuarios(valor) {
 
         resultadosDiv.innerHTML = '';
 
-        //  tratamento de null
         if (!usuarios) {
             resultadosDiv.innerHTML = `
                 <div class="item-busca vazio">
@@ -74,33 +80,35 @@ async function buscarUsuarios(valor) {
     }
 }
 
-const btnAbrirBusca = document.getElementById('btn-abrir-busca');
+// ABRIR BUSCA
+btnAbrir?.addEventListener('click', () => {
+    overlay.classList.add('ativo');
+    inputBusca.classList.add('ativo');
+    inputBusca.focus();
+    document.body.style.overflow = 'hidden';
+});
+// FECHAR BUSCA
+btnFechar?.addEventListener('click', fecharBusca);
 
-if (btnAbrirBusca && inputBusca) {
-    btnAbrirBusca.addEventListener('click', () => {
-        inputBusca.classList.toggle('ativo');
-        
-        if (inputBusca.classList.contains('ativo')) {
-            inputBusca.focus();
-        } else {
-            resultadosDiv.style.display = 'none';
-        }
-    });
+// clicar fora fecha
+overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+        fecharBusca();
+    }
+});
+
+// ESC fecha
+document.addEventListener('keydown', (e) => {
+    if (e.key === "Escape") {
+        fecharBusca();
+    }
+});
+
+function fecharBusca() {
+    overlay.classList.remove('ativo');
+    inputBusca.classList.remove('ativo');
+    resultadosDiv.style.display = 'none';
+    resultadosDiv.innerHTML = '';
+    inputBusca.value = '';
+    document.body.style.overflow = 'auto';
 }
-
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-container')) {
-        resultadosDiv.style.display = 'none';
-        if (window.innerWidth <= 480) {
-            inputBusca.classList.remove('ativo');
-        }
-    }
-});
-
-// mobile
-document.getElementById('btn-abrir-busca')?.addEventListener('click', () => {
-    if (window.innerWidth <= 1024) {
-        inputBusca.style.display = 'block';
-        inputBusca.focus();
-    }
-});

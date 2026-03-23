@@ -22,9 +22,15 @@
 
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass" id="btn-abrir-busca"></i>
-                <input type="text" id="input-busca" placeholder="Buscar">
-                
-                <div id="resultados-busca" class="resultados-busca-wrapper"></div>
+
+                <div class="search-overlay">
+                    <div class="search-box">
+                        <i class="fa-solid fa-xmark" id="btn-fechar-busca"></i>
+                        <input type="text" id="input-busca" placeholder="Buscar">
+                    </div>
+
+                    <div id="resultados-busca" class="resultados-busca-wrapper"></div>
+                </div>
             </div>
 
             <nav class="nav-links">

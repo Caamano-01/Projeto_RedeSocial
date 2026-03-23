@@ -146,6 +146,7 @@
                 // salvar dados no Database
                 await set(ref(db, 'usuarios/' + user.uid), {
                     nome,
+                    nome_lower: nome.toLowerCase(),
                     email,
                     turma,
                     descricao,

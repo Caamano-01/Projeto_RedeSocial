@@ -20,6 +20,7 @@
     top: 0;
     border-right: 1px solid #ccc;
     transition: width 0.3s ease;
+    z-index: 100;
 }
 
 .sidebar-logo {
@@ -184,7 +185,7 @@
     position: sticky;
     top: 0;
     background: white;
-    z-index: 10;
+    z-index: 1;
 }
 
 .tab {
@@ -614,23 +615,26 @@ textarea {
 
 /* --- TABLETS --- */
 @media (max-width: 1024px) {
+    /* Sidebar reduzida */
     .sidebar {
         width: 80px;
         align-items: center;
     }
 
+    /* Esconder textos para mais compactação */
     .nav-links span,
     .user-name,
     .btn-postar span,
-    .sidebar-logo,
-    .search-container {
+    .sidebar-logo {
         display: none;
     }
 
+    /* Ícones maiores para navegação */
     .nav-links a i {
         font-size: 1.5rem;
     }
 
+    /* Botão postar redondo e menor */
     .btn-postar {
         width: 50px;
         height: 50px;
@@ -638,56 +642,291 @@ textarea {
         padding: 0;
     }
 
+    /* Feed com espaço para sidebar fina */
     .feed-container {
         margin-left: 80px;
         width: calc(100% - 80px);
     }
-}
 
-/* --- MOBILE --- */
-@media (max-width: 480px) {
-    .user-avatar-mini {
-        width: 45px;
-        height: 45px;
-        margin-left: 0;
+    /* Container da busca centralizado */
+    .search-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        position: relative;
     }
 
-    textarea{
+    /* Ícone da lupa */
+    #btn-abrir-busca {
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #000;
+    }
+
+    /* Input da busca visível só quando ativo */
+    #input-busca {
+        display: none;
+    }
+
+    #input-busca.ativo {
+        display: block;
+    }
+
+    /* Overlay da busca */
+    .search-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        backdrop-filter: blur(5px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 9999;
+    }
+
+    /* Overlay ativo */
+    .search-overlay.ativo {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    /* Caixa da busca dentro do overlay */
+    .search-box {
+        margin-top: 20px;
+        width: 90%;
+        max-width: 400px;
+        background: #fff;
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        padding: 20px 15px;
+        cursor: text;
+        gap: 10px;
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+
+    /* Animação ao abrir */
+    .search-overlay.ativo .search-box {
+        transform: translateY(0);
+    }
+
+    /* Input da busca dentro da caixa */
+    .search-box input {
+        border: none;
+        outline: none;
+        width: 100%;
         font-size: 1rem;
     }
 
-    .post-actions {
-        margin-top: 5px;
+    /* Botão fechar busca */
+    #btn-fechar-busca {
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #555;
+        background: none;
+        border: none;
     }
 
+    /* Wrapper dos resultados da busca */
+    .resultados-busca-wrapper {
+        width: 90%;
+        max-width: 400px;
+        margin-top: 10px;
+        background: #fff;
+        border-radius: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        z-index: 10000;
+    }
+
+    /* Cada item da busca */
+    .item-busca {
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        color: #000;
+        transition: background-color 0.2s ease;
+    }
+
+    .item-busca:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Imagem dentro do item da busca */
+    .item-busca img {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+}
+
+
+
+
+
+/* --- MOBILE --- */
+@media (max-width: 480px) {
+
+    /* SIDEBAR (vira bottom bar) */
+    .sidebar {
+        width: 100%;
+        height: 60px;
+        flex-direction: row;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        top: auto;
+        padding: 0 10px;
+        align-items: center;
+        justify-content: space-around;
+        z-index: 999;
+    }
+
+    .sidebar-top {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        width: 100%;
+    } 
+
+    .sidebar-top > * {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* remove coisas desnecessárias */
+    .sidebar-logo,
+    .user-footer,
+    .btn-postar {
+        display: none;
+    }
+
+    /* NAVEGAÇÃO */
+    .nav-links {
+        display: flex;
+        flex-direction: row;
+        flex: 4;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .nav-links a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .nav-links span {
+        display: none;
+    }
+
+    /* BUSCA (ÍCONE NA ESQUERDA) */
+    .search-container {
+        order: -1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .search-box {
+        margin-top: 15px;
+        border-radius: 20px;
+    }
+
+    #btn-abrir-busca {
+        font-size: 1.4rem;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    /* INPUT OVERLAY */
+    #input-busca {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 15px 20px;
+        background: #fff;
+        border: none;
+        border-bottom: 1px solid #ccc;
+        z-index: 1000;
+        font-size: 1rem;
+    }
+
+    #input-busca.ativo {
+        display: block;
+    }
+
+    /* RESULTADOS */
+    .resultados-busca-wrapper {
+        position: fixed;
+        top: 55px;
+        left: 0;
+        width: 100%;
+        max-height: 300px;
+        border-radius: 0;
+        z-index: 999;
+    }
+
+    /* FEED */
+    .feed-container {
+        margin-left: 0;
+        width: 100%;
+        padding: 10px;
+        padding-bottom: 80px;
+    }
+
+    .feed-header, 
+    .create-post, 
+    #posts-feed {
+        max-width: 100%;
+    }
+
+    /* POSTS */
     .create-post {
         padding: 5px;
+    }
+
+    textarea {
+        font-size: 1rem;
     }
 
     .post {
         padding: 5px;
     }
 
-    .post-header-info {
-        font-size: 0.95rem;
+    .post-container-flex {
+        gap: 10px;
+        padding: 5px;
     }
 
     .post-user-img {
         width: 42px;
         height: 42px;
-        margin-left: 0;
-    }
-
-    .post-container-flex {
-        gap: 12px;
-        padding: 1px;
     }
 
     .post-text {
-        font-size: 0.90rem;
+        font-size: 0.9rem;
     }
 
-    .interaction-item{
+    .post-header-info {
+        font-size: 0.95rem;
+    }
+
+    /* INTERAÇÕES */
+    .interaction-item {
         font-size: 1rem;
     }
 
@@ -695,70 +934,15 @@ textarea {
         font-size: 1rem;
     }
 
-    .sidebar {
-        width: 100%;
-        height: 60px;
-        flex-direction: row;
-        top: auto;
-        bottom: 0;
-        padding: 0 10px;
-        align-items: center;
-        justify-content: space-around;
-        z-index: 999;
+    /* AVATAR */
+    .user-avatar-mini {
+        width: 45px;
+        height: 45px;
     }
 
-    .feed-container {
-        margin-left: 0;
-        width: 100%;
-        padding-bottom: 80px;
-    }
-    
-    .feed-header, 
-    .create-post, 
-    #posts-feed {
-        max-width: 100%;
-    }
-
-    .nav-links {
-        flex-direction: row;
-        width: 100%;
-        justify-content: space-around;
-    }
-
-    .user-footer,
-    .btn-postar {
-        display: none;
-    }
-
+    /* TABS */
     .tab {
         font-size: 0.9rem;
         padding: 12px;
-    }
-
-    .search-container {
-        margin-bottom: 0;
-        display: flex;
-        align-items: center;
-    }
-
-    #input-busca {
-        display: none; 
-        position: fixed;
-        top: 60px;
-        left: 0;
-        width: 100%;
-        padding: 15px;
-        background: #fff;
-        border: 1px solid #ccc;
-    }
-
-    #input-busca.ativo {
-        display: block;
-    }
-
-    #btn-abrir-busca {
-        font-size: 1.5rem;
-        color: #fff;
-        cursor: pointer;
     }
 }
