@@ -17,8 +17,16 @@
             <img src="../assets/img/logo-clara.png" alt="SenaX" class="sidebar-logo">
 
             <div class="search-container">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Buscar">
+                <i class="fa-solid fa-magnifying-glass" id="btn-abrir-busca"></i>
+
+                <div class="search-overlay">
+                    <div class="search-box">
+                        <i class="fa-solid fa-xmark" id="btn-fechar-busca"></i>
+                        <input type="text" id="input-busca" placeholder="Buscar">
+                    </div>
+
+                    <div id="resultados-busca" class="resultados-busca-wrapper"></div>
+                </div>
             </div>
 
             <nav class="nav-links">
@@ -102,6 +110,7 @@
 
     </main>
 
+    <script type="module" src="../assets/js/main.js"></script>
     <script type="module" src="../assets/js/chat.js"></script>
 </body>
 </html>

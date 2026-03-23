@@ -30,100 +30,89 @@ const checkAuth = setInterval(() => {
 // LISTAR QUEM SEGUE
 function carregarConversas() {
     const lista = document.getElementById('lista-contatos');
+    if (!lista) return;
     lista.innerHTML = "<p>Carregando...</p>";
 
     const seguindoRef = ref(db, `seguindo/${usuarioAtual.uid}`);
     const convRef = ref(db, 'conversas');
 
+    // Escuta quem você segue
     onValue(seguindoRef, (snapSeguindo) => {
-
         if (!snapSeguindo.exists()) {
-            lista.innerHTML = "<p>Você não segue ninguém</p>";
+            lista.innerHTML = "<p class='p-3 text-center'>Você não segue ninguém</p>";
             return;
         }
 
+        // Buscamos as conversas apenas uma vez para cruzar os dados
         onValue(convRef, (snapConversas) => {
+            lista.innerHTML = ""; // Limpa o "Carregando..."
+            
+            const seguindoIds = Object.keys(snapSeguindo.val());
+            const todasConversas = snapConversas.val() || {};
 
-            lista.innerHTML = "";
-
-            const seguindo = snapSeguindo.val();
-            const conversas = snapConversas.val() || {};
-
-            Object.keys(seguindo).forEach(uidSeguido => {
-
+            seguindoIds.forEach(uidSeguido => {
                 let conversaId = null;
-                let ultimaMensagem = "";
+                let ultimaMsg = "";
 
-                // procurar conversa existente
-                Object.keys(conversas).forEach(id => {
-                    const c = conversas[id];
-
-                    if (
-                        c.participantes &&
-                        c.participantes[usuarioAtual.uid] &&
-                        c.participantes[uidSeguido]
-                    ) {
+                // Tenta achar conversa existente
+                for (let id in todasConversas) {
+                    const c = todasConversas[id];
+                    if (c.participantes && c.participantes[usuarioAtual.uid] && c.participantes[uidSeguido]) {
                         conversaId = id;
-                        ultimaMensagem = c.ultimaMensagem || "";
+                        ultimaMsg = c.ultimaMensagem || "";
+                        break;
                     }
-                });
-
-                // se não existir, cria
-                if (!conversaId) {
-                    const novaConv = push(ref(db, 'conversas'));
-
-                    conversaId = novaConv.key;
-
-                    set(novaConv, {
-                        participantes: {
-                            [usuarioAtual.uid]: true,
-                            [uidSeguido]: true
-                        },
-                        timestamp: Date.now(),
-                        ultimaMensagem: ""
-                    });
                 }
 
-                carregarUsuario(uidSeguido, {
-                    id: conversaId,
-                    ultimaMensagem
-                });
+                // Se não existir cria apenas ao clicar ou via função dedicada.
+                carregarUsuario(uidSeguido, conversaId, ultimaMsg);
             });
-
         }, { onlyOnce: true });
-
     });
 }
 
 // CARREGAR USUÁRIO NA LISTA
-function carregarUsuario(uid, conv) {
+function carregarUsuario(uid, conversaId, ultimaMsg) {
     const userRef = ref(db, `usuarios/${uid}`);
+    const lista = document.getElementById('lista-contatos');
 
     onValue(userRef, (snap) => {
         const user = snap.val();
         if (!user) return;
 
-        const lista = document.getElementById('lista-contatos');
-
-        // evita duplicação
-        if (document.getElementById(`contato-${uid}`)) return;
+        // Remove se já existir para atualizar (evita duplicados)
+        const antigo = document.getElementById(`contato-${uid}`);
+        if (antigo) antigo.remove();
 
         const item = document.createElement('div');
         item.className = 'contato-item';
         item.id = `contato-${uid}`;
 
         item.innerHTML = `
-            <img src="${user.fotoPerfil || '../assets/img/default-avatar.png'}">
-            <div>
+            <img src="${user.fotoPerfil || '../assets/img/default-avatar.png'}" class="avatar-contato">
+            <div class="contato-info">
                 <strong>${user.nome}</strong>
-                <p class="preview-msg">${escaparHTML(conv.ultimaMensagem || '')}</p>
+                <p class="preview-msg">${escaparHTML(ultimaMsg || 'Nenhuma mensagem')}</p>
             </div>
         `;
 
-        item.onclick = () => abrirConversa(user, conv.id, item);
+        item.onclick = async () => {
+            // Se não tinha conversa, cria agora ao clicar
+            let idFinal = conversaId;
+            if (!idFinal) {
+                const novaConvRef = push(ref(db, 'conversas'));
+                idFinal = novaConvRef.key;
+                await set(novaConvRef, {
+                    participantes: { [usuarioAtual.uid]: true, [uid]: true },
+                    timestamp: Date.now(),
+                    ultimaMensagem: ""
+                });
+            }
+            abrirConversa(user, idFinal, item);
+        };
 
         lista.appendChild(item);
-    });
+    }, { onlyOnce: true });
 }
 
 // ABRIR CONVERSA
