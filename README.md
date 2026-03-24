@@ -14,8 +14,8 @@ O Senax foi criado como um ambiente digital controlado onde apenas estudantes ca
 | Camada | Tecnologias |
 |--------|-------------|
 | **Front-end** | HTML, CSS, JavaScript |
-| **Back-end** | |
-| **Banco de dados** | MongoDB |
+| **Back-end** | JavaScript |
+| **Banco de dados** | Realtime Database(Firebase) |
 
 ---
 
@@ -30,7 +30,37 @@ O Senax foi criado como um ambiente digital controlado onde apenas estudantes ca
 ---
 
 ### Estrutura do projeto
-
+├── assets/
+│   ├── css/
+│   │   ├── chat.css
+│   │   ├── perfil.css
+│   │   ├── style-index.css
+│   │   └── style-pgInicial.css
+│   ├── img/
+│   │   ├── default-avatar.png
+│   │   ├── logo-clara.png
+│   │   ├── logo-escura.png
+│   │   ├── S-logo-clara.png
+│   │   └── S-logo-escura.png
+│   └── js/
+│   │   ├── auth.js
+│   │   ├── busca.js
+│   │   ├── chat.js
+│   │   ├── comments.js
+│   │   └── feed.js
+│   │   ├── firebase-config.js
+│   │   ├── likes.js
+│   │   ├── main.js
+│   │   ├── perfil.js
+│   │   └── postRender.js
+│   │   ├── posts.js
+│   │   ├── seguindo.js
+│   │   └── utils.js
+├── public/
+│   ├── chat.html
+│   ├── page_inicial.html
+│   └── perfil.html
+└── index.html
 
 ---
 
