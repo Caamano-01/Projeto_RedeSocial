@@ -30,6 +30,7 @@ O Senax foi criado como um ambiente digital controlado onde apenas estudantes ca
 ---
 
 ### Estrutura do projeto
+```text
 ├── assets/
 │   ├── css/
 │   │   ├── chat.css
@@ -43,24 +44,25 @@ O Senax foi criado como um ambiente digital controlado onde apenas estudantes ca
 │   │   ├── S-logo-clara.png
 │   │   └── S-logo-escura.png
 │   └── js/
-│   │   ├── auth.js
-│   │   ├── busca.js
-│   │   ├── chat.js
-│   │   ├── comments.js
-│   │   └── feed.js
-│   │   ├── firebase-config.js
-│   │   ├── likes.js
-│   │   ├── main.js
-│   │   ├── perfil.js
-│   │   └── postRender.js
-│   │   ├── posts.js
-│   │   ├── seguindo.js
-│   │   └── utils.js
+│       ├── auth.js
+│       ├── busca.js
+│       ├── chat.js
+│       ├── comments.js
+│       ├── feed.js
+│       ├── firebase-config.js
+│       ├── likes.js
+│       ├── main.js
+│       ├── perfil.js
+│       ├── postRender.js
+│       ├── posts.js
+│       ├── seguindo.js
+│       └── utils.js
 ├── public/
 │   ├── chat.html
 │   ├── page_inicial.html
 │   └── perfil.html
 └── index.html
+````
 
 ---
 
