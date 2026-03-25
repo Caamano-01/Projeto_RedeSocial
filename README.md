@@ -66,6 +66,63 @@ O Senax foi criado como um ambiente digital controlado onde apenas estudantes ca
 
 ---
 
+### Estrutura do banco Firebase
+usuarios/
+  uid/
+    nome
+    nome_lower
+    email
+    fotoPerfil
+    descricao
+    turma
+    dataCadastro
+
+posts/
+  postId/
+    uid
+    nome
+    avatar
+    texto
+    timestamp
+
+comentarios/
+  postId/
+    comentarioId/
+      uid
+      nome
+      fotoPerfil
+      texto
+      timestamp
+
+likes/
+  postId/
+    uid: true
+
+seguidores/
+  uid/
+    seguidorId: true
+
+seguindo/
+  uid/
+    seguindoId: true
+
+conversas/
+  conversaId/
+    participantes/
+      uid: true
+    ultimaMensagem
+    timestamp
+
+mensagens/
+  conversaId/
+    mensagemId/
+      senderId
+      texto
+      timestamp
+      lido
+
+---
+
 ### Segurança e boas práticas
 Para atender aos requisitos de um ambiente escolar seguro, o SenaX implementa:
 - **Ambiente Controlado:** Bloqueio de cadastros que não utilizem o domínio do senai via Firebase Security Rules.
