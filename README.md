@@ -67,6 +67,7 @@ O Senax foi criado como um ambiente digital controlado onde apenas estudantes ca
 ---
 
 ### Estrutura do banco Firebase
+```text
 usuarios/
   uid/
     nome
@@ -120,6 +121,7 @@ mensagens/
       texto
       timestamp
       lido
+```
 
 ---
 
