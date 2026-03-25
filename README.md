@@ -66,5 +66,21 @@ O Senax foi criado como um ambiente digital controlado onde apenas estudantes ca
 
 ---
 
+### Segurança e boas práticas
+Para atender aos requisitos de um ambiente escolar seguro, o SenaX implementa:
+- **Ambiente Controlado:** Bloqueio de cadastros que não utilizem o domínio do senai via Firebase Security Rules.
+- **Proteção contra XSS:** Sanitização de todas as entradas de texto (posts e comentários) através de escape de caracteres HTML.
+- **Integridade de Dados:** Regras de banco NoSQL que garantem que apenas o autor de uma postagem possa excluí-la.
+- **Sessão Segura:** Proteção de rotas que redireciona usuários não autenticados para a tela de login.
+
+---
+
+### Como executar
+1. Clone o repositório.
+2. Como o projeto utiliza módulos ES6 (`type="module"`), é necessário rodar através de um servidor local (ex: Extensão *Live Server* do VS Code).
+3. Abra o arquivo `index.html` no navegador.
+
+---
+
 ### Link do protótipo
 #### https://www.canva.com/design/DAHC09K0sRQ/OYVol2nps79a50FNBhblDw/edit?utm_content=DAHC09K0sRQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
