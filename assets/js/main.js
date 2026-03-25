@@ -18,3 +18,18 @@ const btnPostSubmit = document.querySelector(".btn-post-submit");
 if (btnPostSubmit) {
     btnPostSubmit.addEventListener("click", criarPostNovo);
 }
+
+let tempoInatividade;
+const resetarTimer = () => {
+    clearTimeout(tempoInatividade);
+    // 15 minutos de inatividade (900.000 ms)
+    tempoInatividade = setTimeout(() => {
+        alert("Sessão expirada por inatividade.");
+        deslogar(); 
+    }, 900000); 
+};
+
+// Monitora movimentos e cliques
+window.onload = resetarTimer;
+document.onmousemove = resetarTimer;
+document.onkeypress = resetarTimer;

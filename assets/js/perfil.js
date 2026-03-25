@@ -136,3 +136,56 @@ function verificarSeguindo(meuUid, perfilAlvoId) {
         }
     });
 }
+
+const btnSalvar = document.getElementById("btn-salvar-perfil");
+
+if (btnSalvar) {
+    btnSalvar.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const novoNome = document.getElementById("edit-nome").value.trim();
+        const novaTurma = document.getElementById("edit-turma").value.trim();
+        const novaBio = document.getElementById("edit-descricao").value.trim();
+        const inputFoto = document.getElementById("input-foto");
+        
+        btnSalvar.disabled = true;
+        btnSalvar.innerText = "Salvando...";
+
+        try {
+            let fotoUrl = usuarioDados.fotoPerfil; // Mantém a atual por padrão
+
+            // Se houver nova foto, faz upload para o Cloudinary
+            if (inputFoto.files[0]) {
+                const formData = new FormData();
+                formData.append("file", inputFoto.files[0]);
+                formData.append("upload_preset", "rede_senax");
+                
+                const res = await fetch("https://api.cloudinary.com/v1_1/dywza3kuv/image/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                fotoUrl = data.secure_url;
+            }
+
+            // Atualiza no Firebase Realtime Database
+            await update(ref(db, 'usuarios/' + user.uid), {
+                nome: novoNome,
+                nome_lower: novoNome.toLowerCase(),
+                turma: novaTurma,
+                descricao: novaBio,
+                fotoPerfil: fotoUrl
+            });
+
+            alert("Perfil atualizado com sucesso!");
+            location.reload(); // Recarrega para aplicar as mudanças
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao atualizar perfil.");
+        } finally {
+            btnSalvar.disabled = false;
+            btnSalvar.innerText = "Salvar Alterações";
+        }
+    });
+}
