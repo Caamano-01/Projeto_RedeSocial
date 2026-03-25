@@ -84,3 +84,9 @@ Para atender aos requisitos de um ambiente escolar seguro, o SenaX implementa:
 
 ### Link do protótipo
 #### https://www.canva.com/design/DAHC09K0sRQ/OYVol2nps79a50FNBhblDw/edit?utm_content=DAHC09K0sRQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
+---
+
+## Testes automatizados
+
+Os testes de aceitação foram realizados utilizando **Selenium IDE**. O arquivo de roteiro de testes (`SenaX_Testes.side`) está disponível na branch "tests" e cobre todas as 11 HUs listadas no relatório de testes.
